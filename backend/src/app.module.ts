@@ -7,6 +7,9 @@ import { join } from 'path';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app.resolvers';
 import { UserModule } from './user/user.module';
+import { MongoDBConfig } from './common/mongodb.config';
+import { MessageModule } from './message/message.module';
+import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
     imports:
@@ -15,7 +18,11 @@ import { UserModule } from './user/user.module';
                 driver: ApolloDriver,
                 autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
              }),
-            UserModule
+            UserModule,
+            MongoDBConfig,
+            UserModule,
+            MessageModule,
+            ConversationModule
         ],
     controllers: [AppController, HealthController],
     providers: [AppService, AppResolver],

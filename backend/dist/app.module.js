@@ -16,6 +16,9 @@ const path_1 = require("path");
 const apollo_1 = require("@nestjs/apollo");
 const app_resolvers_1 = require("./app.resolvers");
 const user_module_1 = require("./user/user.module");
+const mongodb_config_1 = require("./common/mongodb.config");
+const message_module_1 = require("./message/message.module");
+const conversation_module_1 = require("./conversation/conversation.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -26,7 +29,11 @@ exports.AppModule = AppModule = __decorate([
                 driver: apollo_1.ApolloDriver,
                 autoSchemaFile: (0, path_1.join)(process.cwd(), 'src/schema.gql'),
             }),
-            user_module_1.UserModule
+            user_module_1.UserModule,
+            mongodb_config_1.MongoDBConfig,
+            user_module_1.UserModule,
+            message_module_1.MessageModule,
+            conversation_module_1.ConversationModule
         ],
         controllers: [app_controller_1.AppController, health_controller_1.HealthController],
         providers: [app_service_1.AppService, app_resolvers_1.AppResolver],

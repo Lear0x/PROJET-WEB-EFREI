@@ -1,42 +1,31 @@
-import { Injectable } from "@nestjs/common";
-import { User } from "./user.model";
-import { timestamp } from "rxjs";
-import { UserInput } from "./user.dto";
-
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from './user.schema';
+import { UserInput } from './user.dto';
 @Injectable()
 export class UserService {
+      constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
-      private users = [
-            { id: "1", username: 'John', password: 'test', email: 'toto', timeStamp: Date.now()},
-            { id: "2", username: 'eric', password: 'test2', email: 'toto2', timeStamp: Date.now()},
-      ];
-
-      async create(data: UserInput): Promise<boolean> {
-            try {
-              const newUser: User = {
-                ...data,
-                timeStamp: Date.now()
-              };
-              this.users.push(newUser);
-              return true;
-            } catch (error) {
-              return false;
-            };
-          }
-
-      async findOneById(id: string): Promise<User> {
-            return this.users.find(user => user.id === id) as User;
+      async findOneById(id: string): Promise<User|null|undefined> {
+            return await this.userModel.findById(id).exec();
       }
-
+      
       async findAll(): Promise<User[]> {
-            return this.users as User[];
+            return await this.userModel.find().exec();
       }
-
-      async remove(id: string): Promise<boolean> {
+      
+      async create(data: UserInput): Promise<boolean> {
+            const newUser = new this.userModel(data);
+            await newUser.save();
             return true;
       }
+      
+      async remove(id: string): Promise<User|null|undefined> {
+            return await this.userModel.findByIdAndDelete(id).exec();
+      }
 
-      //   async signIn(username: string, password:string): Promise<User> {
-      //         return {} as User;
-      //   }
+      async signIn(username: string, password:string): Promise<Boolean|User> {
+               return false;
+      }
 }
