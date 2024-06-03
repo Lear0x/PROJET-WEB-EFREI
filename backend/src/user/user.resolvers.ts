@@ -20,7 +20,7 @@ export class UserResolver {
     @Query(returns => [User])
     async users(): Promise<User[]> {
         const users = await this.userService.findAll();
-        if(!users) {
+        if(users.length < 1) {
             throw new NotFoundException();
         }
 
