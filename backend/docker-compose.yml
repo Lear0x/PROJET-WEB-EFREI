@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend_whatsapp_de_wish:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
