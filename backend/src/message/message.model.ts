@@ -13,7 +13,7 @@ export class Message {
     content: string;
 
     @Field(type => User)
-    from: string;
+    from: User;
 
     @Field(type => Conversation)
     conversation: Conversation;

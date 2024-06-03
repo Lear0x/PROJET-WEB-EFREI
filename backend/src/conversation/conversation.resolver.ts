@@ -5,10 +5,10 @@ import { MessageService } from "../message/message.service";
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
+
     constructor(
         private readonly conversationService: ConversationService,
         private readonly messageService: MessageService) 
     {}
-
 
 }
