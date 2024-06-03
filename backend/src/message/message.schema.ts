@@ -1,10 +1,10 @@
 import { Schema, Document } from 'mongoose';
 
 export const MessageSchema = new Schema({
-  content: String,
+  content: { type: String, required: true },
   from: { type: Schema.Types.ObjectId, ref: 'User' },
   conversation: { type: Schema.Types.ObjectId, ref: 'Conversation' },
-  timeStamp: Date,
+  timeStamp: { type: Date, default: Date.now },
 });
 
 MessageSchema.set('toJSON', {

@@ -2,10 +2,10 @@
 import { Schema, Document } from 'mongoose';
 
 export const ConversationSchema = new Schema({
-  title: [String],
+  title: { type: String, required: true },
   messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  timestamp: Date,
+  timestamp: { type: Date, default: Date.now },
 });
 
 ConversationSchema.set('toJSON', {

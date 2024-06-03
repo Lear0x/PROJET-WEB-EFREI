@@ -7,16 +7,16 @@ export class Conversation {
 
     @Field(type => ID)
     id: string;
-
-    @Field(type => [String])
+  
+    @Field(type => String)
     title: string;
-
+  
     @Field(type => [Message])
-    messages: Message;
-
+    messages: Message[];
+  
     @Field(type => [User])
     users: User[];
-
-    @Field(type => Date) 
-    timestamp: Date
+  
+    @Field(type => Date)
+    timeStamp: Date;
 }
