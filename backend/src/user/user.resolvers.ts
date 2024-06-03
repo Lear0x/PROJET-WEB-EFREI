@@ -17,14 +17,9 @@ export class UserResolver {
         return user;
     }
 
-    @Query(returns => [User])
-    async users(): Promise<User[]> {
-        const users = await this.userService.findAll();
-        if(users.length < 1) {
-            throw new NotFoundException();
-        }
-
-        return users;
+    @Query(() => [User], { name: 'users' })
+    async getUsers(): Promise<User[]> {
+      return this.userService.findAll();
     }
 
     @Mutation(returns => User)
