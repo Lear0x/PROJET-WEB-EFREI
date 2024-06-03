@@ -28,7 +28,7 @@ export class UserResolver {
       return this.userService.create(data);
     }
 
-    @Mutation(returns => User)
+    @Mutation(returns => Boolean)
     async removeUser(@Args('id')id : string) {
         return this.userService.remove(id);
     }
