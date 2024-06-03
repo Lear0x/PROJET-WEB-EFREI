@@ -6,7 +6,7 @@
 type Message {
   id: ID!
   content: String!
-  from: User!
+  userId: String!
   conversation: Conversation!
   timeStamp: Date!
 }
