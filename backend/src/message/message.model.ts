@@ -1,4 +1,4 @@
-import { Directive, Field, ID, InputType, ObjectType } from '@nestjs/graphql';
+import { Directive, Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { Conversation } from 'src/conversation/conversation.model';
 import { User } from 'src/user/user.model';
 
@@ -17,7 +17,7 @@ export class Message {
     @Field(type => Conversation)
     conversation: Conversation;
   
-    @Field(type => Date)
-    timeStamp: Date;
+    @Field(type => Int)
+    timeStamp: number;
 
 }
