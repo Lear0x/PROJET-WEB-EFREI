@@ -1,6 +1,5 @@
-import { Directive, Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Directive, Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { Conversation } from 'src/conversation/conversation.model';
-
 
 @ObjectType({ description: 'user ' })
 export class User {
@@ -22,6 +21,6 @@ export class User {
     timeStamp: number;
 
     @Field(type =>  [Conversation], { nullable: true })
-    conversations?: Conversation[];
+    conversations?: Conversation[] | null;
 
 }

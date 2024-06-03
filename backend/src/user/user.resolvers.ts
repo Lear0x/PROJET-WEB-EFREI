@@ -2,6 +2,7 @@ import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { User } from './user.model';
 import { UserService } from './user.service';
 import { NotFoundException } from '@nestjs/common';
+import { UserInput } from './user.dto';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -22,15 +23,9 @@ export class UserResolver {
       return this.userService.findAll();
     }
 
-    @Mutation(returns => User)
-    async createUser(@Args('username')username : string, @Args('password')password : string, @Args('email')email : string  ) {
-        return this.userService.create( {
-            email: email,
-            password: password,
-            timeStamp: Date.now(),
-            username: username,
-            id: ''
-        })
+    @Mutation(() => Boolean)
+    async createUser(@Args('data') data: UserInput): Promise<boolean> {
+      return this.userService.create(data);
     }
 
     @Mutation(returns => User)

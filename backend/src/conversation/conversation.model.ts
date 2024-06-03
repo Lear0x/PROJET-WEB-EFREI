@@ -1,4 +1,4 @@
-import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
+import { Directive, Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { Message } from 'src/message/message.model';
 import { User } from 'src/user/user.model';
 
