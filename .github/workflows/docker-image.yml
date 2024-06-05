@@ -13,6 +13,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Log working directory
+        run: pwd
+
+      - name: List root directory contents
+        run: ls -al
+
+      - name: List backend directory contents
+        run: ls -al backend
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
