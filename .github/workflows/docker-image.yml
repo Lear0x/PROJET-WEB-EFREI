@@ -48,6 +48,11 @@ jobs:
           docker build -t learox/backend-backend_whatsapp_de_wish:latest -f backend/Dockerfile backend/
           docker push learox/backend-backend_whatsapp_de_wish:latest
 
+      # Installer Render CLI
+      - name: Install Render CLI
+        run: |
+          curl -sSL https://render.com/install.sh | sh
+
       # Déploiement sur Render
       - name: Deploy to Render
         run: |
