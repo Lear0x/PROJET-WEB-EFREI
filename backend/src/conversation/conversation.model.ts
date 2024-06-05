@@ -12,7 +12,7 @@ export class Conversation {
     title: string;
 
     @Field(type => [Message], { nullable: true })
-    messages: Message;
+    messages: Message[];
 
     @Field(type => [User])
     users: User[];
