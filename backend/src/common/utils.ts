@@ -19,6 +19,6 @@ export function toGraphQLConversation(conversation: MongooseConversation): Graph
     title: conversation.title,
     messageIds: conversation.messages as any, // you may need to populate the messages if they are not populated
     users: conversation.users as any,       // you may need to populate the users if they are not populated
-    timestamp: conversation.timestamp.getTime(),
+    timestamp: conversation.timestamp,
   };
 }

@@ -21,5 +21,5 @@ export interface Conversation extends Document {
   title: string;
   messages: string[];
   users: string[];
-  timestamp: Date;
+  timestamp: number;
 }
