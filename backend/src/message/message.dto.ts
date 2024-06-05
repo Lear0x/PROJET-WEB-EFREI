@@ -11,6 +11,6 @@ export class MessageInput {
     @Field(type => User)
     user: User;
 
-    @Field(type => Conversation)
-    conversation: Conversation;
+    @Field(type => ID)
+    conversationId: string;
 }
