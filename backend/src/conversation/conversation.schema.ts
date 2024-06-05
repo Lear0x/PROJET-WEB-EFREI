@@ -4,7 +4,7 @@ export const ConversationSchema = new Schema({
   title: { type: String, required: true },
   messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  timestamp: { type: Date, default: Date.now },
+  timestamp: { type: Schema.Types.Number, default: Date.now },
 });
 
 ConversationSchema.set('toJSON', {

@@ -21,5 +21,5 @@ export interface Message extends Document {
   content: string;
   from: string;
   conversation: string;
-  timeStamp: Date;
+  timeStamp: number;
 }

@@ -1,7 +1,7 @@
 import { Directive, Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { User } from 'src/user/user.model';
 
-@ObjectType({ description: 'message ' })
+@ObjectType()
 export class Message {
     @Field(type => ID)
     id: string;
@@ -15,6 +15,6 @@ export class Message {
     @Field(type => ID)
     conversationId: string; // Référence à la conversation
 
-    @Field(type => Date)
-    timeStamp: Date;
+    @Field()
+    timeStamp: number;
 }
