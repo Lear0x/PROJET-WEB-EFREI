@@ -1,13 +1,11 @@
-import { Directive, Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { Conversation } from 'src/conversation/conversation.model';
 
-@ObjectType({ description: 'user ' })
+@ObjectType()
 export class User {
-
     @Field(type => ID)
     id: string;
 
-    
     @Field(type => String)
     username: string;
 

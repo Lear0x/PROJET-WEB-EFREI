@@ -1,22 +1,20 @@
-import { Directive, Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
-import { Message } from 'src/message/message.model';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { User } from 'src/user/user.model';
 
-@ObjectType({ description: 'conversation ' })
+@ObjectType()
 export class Conversation {
-
     @Field(type => ID)
     id: string;
 
-    @Field(type => [String])
+    @Field(type => String)
     title: string;
 
-    @Field(type => [Message], { nullable: true })
-    messages: Message;
+    @Field(type => [ID], { nullable: true }) // Liste d'identifiants de messages
+    messageIds: string[];
 
     @Field(type => [User])
     users: User[];
 
     @Field(type => Int) 
-    timestamp: number
+    timestamp: number;
 }

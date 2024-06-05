@@ -1,9 +1,13 @@
+// message.module.ts
 import { Module } from '@nestjs/common';
-import { DateScalar } from '../common/date.scalar';
-import { MessageResolver } from './message.resolver';
+import { MongooseModule } from '@nestjs/mongoose';
 import { MessageService } from './message.service';
+import { MessageSchema } from './message.schema';
+import { MessageResolver } from './message.resolver';
 
 @Module({
-  providers: [MessageResolver, MessageService, DateScalar],
+  imports: [MongooseModule.forFeature([{ name: 'Message', schema: MessageSchema }])],
+  providers: [MessageService, MessageResolver],
+  exports: [MessageService],
 })
 export class MessageModule {}

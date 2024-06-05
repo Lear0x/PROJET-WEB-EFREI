@@ -1,16 +1,42 @@
 version: '3.8'
 
 services:
-  backend_whatsapp_de_wish:
-    build: .
+  mongo:
+    image: mongo:latest
+    container_name: mongo
     ports:
-      - "3000:3000"
+      - '27017:27017'
     environment:
-      NODE_ENV: production
-    depends_on:
-      - redis
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    networks:
+      - backend-network
 
-  redis:
-    image: "redis:alpine"
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
     ports:
-      - "6379:6379"
+      - '8081:8081'
+    networks:
+      - backend-network
+
+  backend:
+    build: .
+    container_name: backend-whatsapp-de-wish
+    depends_on:
+      - mongo
+    ports:
+      - '3000:3000'
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
+    attachable: true
