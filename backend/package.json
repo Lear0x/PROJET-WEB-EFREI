@@ -28,8 +28,10 @@
     "@nestjs/graphql": "^12.1.1",
     "@nestjs/platform-express": "^10.0.0",
     "bull": "^4.12.9",
+    "bullmq": "^5.7.15",
     "graphql": "^16.8.1",
     "graphql-tools": "^9.0.1",
+    "ioredis": "^5.4.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },

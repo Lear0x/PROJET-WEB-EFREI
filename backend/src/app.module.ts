@@ -8,6 +8,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app.resolvers';
 import { UserModule } from './user/user.module';
 import { MessageModule } from './message/message.module';
+import { BullConfigModule } from './config/bull.config';
 
 @Module({
     imports:
@@ -17,7 +18,8 @@ import { MessageModule } from './message/message.module';
                 autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
              }),
             UserModule,
-            MessageModule
+            MessageModule,
+            BullConfigModule
         ],
     controllers: [AppController, HealthController],
     providers: [AppService, AppResolver],

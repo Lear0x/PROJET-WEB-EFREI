@@ -3,16 +3,19 @@ import { Message } from './message.model';
 import { MessageInput } from './message.dto';
 import { MessageService } from './message.service';
 import { NotFoundException } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bullmq';
 
 
 @Resolver(() => Message)
 export class MessageResolver {
 
-    constructor(private readonly messageService: MessageService) { }
+    constructor(private readonly messageService: MessageService, @InjectQueue('message-queue') private messageQueue: Queue) { }
 
-    @Mutation(returns => Message)
-    async createMessage(@Args('messageInput') messageInput: MessageInput): Promise<Message> {
-        return this.messageService.create(messageInput);
+    @Mutation(() => Boolean)
+    async createMessage(@Args('data') data: MessageInput): Promise<boolean> {
+      await this.messageQueue.add('createMessage', data);
+      return true;
     }
 
     @Mutation(returns => Message)
