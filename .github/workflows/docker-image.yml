@@ -36,5 +36,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t learox/backend-backend_whatsapp_de_wish:latest -f backend/Dockerfile ./backend
+          docker build -t learox/backend-backend_whatsapp_de_wish:latest -f backend/Dockerfile .
           docker push learox/backend-backend_whatsapp_de_wish:latest
