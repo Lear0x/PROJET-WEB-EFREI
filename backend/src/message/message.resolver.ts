@@ -49,5 +49,4 @@ export class MessageResolver {
         return this.messageService.findByUserId(userId);
     }
     
-
 }

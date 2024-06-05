@@ -1,57 +1,59 @@
-import { Injectable } from '@nestjs/common';
-import { Message } from './message.model';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Message as GraphQLMessage } from './message.model';
+import { Message as MongooseMessage, MessageSchema } from './message.schema';
 import { MessageInput } from './message.dto';
+import { toGraphQLMessage } from '../common/utils'; // Assurez-vous d'importer la fonction de transformation correctement
 
 @Injectable()
 export class MessageService {
-    private messages: Message[] = [];
+  constructor(
+    @InjectModel('Message') private readonly messageModel: Model<MongooseMessage>,
+  ) {}
 
-    async create(messageInput: MessageInput): Promise<Message> {
-        const message: Message = {
-            id: Math.random().toString(),
-            content: messageInput.content,
-            timeStamp: new Date(),
-            userId: messageInput.userId,
-            conversation: messageInput.conversation
-        };
-        this.messages.push(message);
-        return message;
-    }
+  async create(messageInput: MessageInput): Promise<GraphQLMessage> {
+    const newMessage = new this.messageModel({
+      ...messageInput,
+      timeStamp: new Date(),
+    });
+    const savedMessage = await newMessage.save();
+    return toGraphQLMessage(savedMessage);
+  }
 
-    async findAll(): Promise<Message[]> {
-        return this.messages as Message[];
-    }
+  async findAll(): Promise<GraphQLMessage[]> {
+    const messages = await this.messageModel.find().exec();
+    return messages.map(toGraphQLMessage);
+  }
 
-    async findOneById(id: string): Promise<Message> {
-        return this.messages.find(message => message.id === id) as Message;
+  async findOneById(id: string): Promise<GraphQLMessage> {
+    const message = await this.messageModel.findById(id).exec();
+    if (!message) {
+      throw new NotFoundException(`Message with ID ${id} not found`);
     }
+    return toGraphQLMessage(message);
+  }
 
-    async remove(id: string): Promise<boolean> {
-        const messageIndex = this.messages.findIndex(message => message.id === id);
-        if (messageIndex === -1) {
-            return false;
-        }
-        this.messages.splice(messageIndex, 1);
-        return true;
-    }
+  async remove(id: string): Promise<boolean> {
+    const result = await this.messageModel.findByIdAndDelete(id).exec();
+    return result !== null;
+  }
 
-    async findByConversationId(conversationId: string): Promise<Message[]> {
-        return this.messages.filter(message => message.conversation.id === conversationId);
-    }
+  async findByConversationId(conversationId: string): Promise<GraphQLMessage[]> {
+    const messages = await this.messageModel.find({ conversation: conversationId }).exec();
+    return messages.map(toGraphQLMessage);
+  }
 
-    async findByUserId(userId: string): Promise<Message[]> {
-        return this.messages.filter(message => message.userId === userId);
-    }
+  async findByUserId(userId: string): Promise<GraphQLMessage[]> {
+    const messages = await this.messageModel.find({ from: userId }).exec();
+    return messages.map(toGraphQLMessage);
+  }
 
-    async update(id: string, messageInput: MessageInput): Promise<Message | null>{
-        const messageIndex = this.messages.findIndex(message => message.id === id);
-        if (messageIndex === -1) {
-            return null;
-        }
-        this.messages[messageIndex] = {
-            ...this.messages[messageIndex],
-            ...messageInput
-        };
-        return this.messages[messageIndex];
+  async update(id: string, messageInput: MessageInput): Promise<GraphQLMessage | null> {
+    const updatedMessage = await this.messageModel.findByIdAndUpdate(id, messageInput, { new: true }).exec();
+    if (!updatedMessage) {
+      return null;
     }
+    return toGraphQLMessage(updatedMessage);
+  }
 }

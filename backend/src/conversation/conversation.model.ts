@@ -8,11 +8,11 @@ export class Conversation {
     @Field(type => ID)
     id: string;
 
-    @Field(type => [String])
+    @Field(type => String)
     title: string;
 
     @Field(type => [Message], { nullable: true })
-    messages: Message;
+    messages: Message[];
 
     @Field(type => [User])
     users: User[];

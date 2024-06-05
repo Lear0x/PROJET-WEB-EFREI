@@ -12,8 +12,8 @@ export class Message {
     @Field(type => String)
     content: string;
 
-    @Field(type => String)
-    userId: string;
+    @Field(type => User)
+    from: User;
 
     @Field(type => Conversation)
     conversation: Conversation;
