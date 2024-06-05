@@ -44,7 +44,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        run: >
+        run: |
           docker build -t learox/backend-backend_whatsapp_de_wish:latest -f backend/Dockerfile backend/
           docker push learox/backend-backend_whatsapp_de_wish:latest
 
