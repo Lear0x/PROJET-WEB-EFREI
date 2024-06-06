@@ -48,6 +48,11 @@ export class UserResolver {
 
     @Mutation(() => Boolean)
     async removeUser(@Args('id')id : string) : Promise<Boolean>{
+		
+		if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException(`Invalid ID format: ${id}`);
+        }
+
 		try {
 			if (!this.userService.findOneById(id)) {
 				throw new NotFoundException(id);
