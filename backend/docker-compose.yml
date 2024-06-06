@@ -26,15 +26,27 @@ services:
     networks:
       - backend-network
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - backend-network
+      
   backend:
     build: .
     container_name: backend-whatsapp-de-wish
     depends_on:
       - mongo
+      - redis
     ports:
       - '3000:3000'
     networks:
       - backend-network
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
 networks:
   backend-network:
