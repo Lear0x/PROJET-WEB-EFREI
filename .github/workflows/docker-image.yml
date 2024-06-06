@@ -49,9 +49,9 @@ jobs:
           docker push learox/backend-backend_whatsapp_de_wish:latest
 
       # Installer Render CLI
-      - name: Install Render CLI
-        run: |
-          curl -sSL https://render.com/install.sh | sh
+      #- name: Install Render CLI
+      # run: |
+      #    curl -sSL https://render.com/install.sh | sh
 
       # creer sur render puis curl sur l'url dans settings compte acces team
 
