@@ -9,7 +9,7 @@ export class Conversation {
     @Field(type => String)
     title: string;
 
-    @Field(type => [ID], { nullable: true }) // Liste d'identifiants de messages
+    @Field(type => [ID])
     messageIds: string[];
 
     @Field(type => [ID])

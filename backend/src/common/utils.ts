@@ -2,6 +2,19 @@ import { Message as GraphQLMessage } from '../message/message.model';
 import { Message as MongooseMessage } from '../message/message.schema';
 import { Conversation as GraphQLConversation } from '../conversation/conversation.model';
 import { Conversation as MongooseConversation } from '../conversation/conversation.schema';
+import { User as GraphQLUser } from '../user/user.model';
+import { User as MongooseUser } from '../user/user.schema';
+
+export function toGraphQLUser(user: MongooseUser): GraphQLUser {
+  return {
+    id: user.id,
+    email: user.email,
+    username: user.username,
+    password: user.password,
+    timeStamp: user.timeStamp,
+    conversationsIds: user.conversationsIds as any,
+  };
+}
 
 export function toGraphQLMessage(message: MongooseMessage): GraphQLMessage {
   return {
@@ -22,3 +35,5 @@ export function toGraphQLConversation(conversation: MongooseConversation): Graph
     timestamp: conversation.timestamp,
   };
 }
+
+

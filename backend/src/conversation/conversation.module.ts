@@ -5,11 +5,14 @@ import { ConversationService } from './conversation.service';
 import { ConversationResolver } from './conversation.resolver';
 import { ConversationSchema } from './conversation.schema';
 import { MessageModule } from '../message/message.module';
+import { UserService } from '../user/user.service';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Conversation', schema: ConversationSchema }]),
+    MongooseModule.forFeature([{ name: 'Conversation', schema: ConversationSchema }, ]),
     MessageModule,
+    UserModule
   ],
   providers: [ConversationService, ConversationResolver],
   exports: [ConversationService],
