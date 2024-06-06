@@ -18,18 +18,41 @@ export class UserResolver {
     }
 
     @Query(() => [User], { name: 'users' })
-    async getUsers(): Promise<User[]> {
-      return this.userService.findAll();
+    async getUsers(): Promise<User[] | null> {
+		try {
+			return this.userService.findAll();
+		} catch (e) {	
+			console.error();
+			throw new Error(e);
+		}
     }
 
     @Mutation(() => Boolean)
     async createUser(@Args('data') data: UserInput): Promise<boolean> {
-      return this.userService.create(data);
+		try {
+			if(await this.userService.findOneByEmail(data.email) && await this.userService.findOneByUsername(data.username)){
+				return await this.userService.create(data);
+			} else {
+				throw new Error('User already exists');
+			}
+		} catch (e) {
+			console.error();
+			throw new Error(e);
+		}
     }
 
-    @Mutation(returns => Boolean)
-    async removeUser(@Args('id')id : string) {
-        return this.userService.remove(id);
-    }
+    @Mutation(() => Boolean)
+    async removeUser(@Args('id')id : string) : Promise<Boolean>{
+		try {
+			if (!this.userService.findOneById(id)) {
+				throw new NotFoundException(id);
+			}
+			const bool = await this.userService.remove(id);
+			return bool ? true : false;
+		} catch (e) {
+			console.error();
+			throw new Error(e);
+		}
+	}
 
 }
