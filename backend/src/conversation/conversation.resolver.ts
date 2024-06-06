@@ -1,21 +1,38 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Conversation } from "./conversation.model";
 import { ConversationService } from "./conversation.service";
-import { MessageService } from "../message/message.service";
 import { ConversationInput } from "./conversation.dto";
 import { NotFoundException } from "@nestjs/common";
+import { UserService } from "../user/user.service";
+import { error } from "console";
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
 
     constructor(
         private readonly conversationService: ConversationService,
-        private readonly messageService: MessageService) 
+        private readonly userService: UserService,
+    ) 
     {}
     
 	@Mutation(() => Boolean)
-    async createConversation(@Args('data') data: ConversationInput): Promise<boolean> {
-        return this.conversationService.create(data);
+    async createConversation(@Args('data') data: ConversationInput): Promise<Boolean> {
+        
+        data.userIds.forEach(userId => {
+            if (!this.userService.findOneById(userId)) {
+                throw error ("One user in the Users selected doesnt exist")
+            }
+        });
+        
+        const convCreated = await this.conversationService.create(data);
+        if(convCreated) {
+            return await this.userService.addConvToUsers(data.userIds, convCreated.id);
+        }
+        else {
+            throw error("Conversation not created");
+        }
+
+         
     }
 
 	@Query(returns => [Conversation])

@@ -13,13 +13,10 @@ export class MessageService {
   ) {}
 
   async create(data: MessageInput): Promise<Message | null> {
-    console.log('création message');
+    
     try {
       const newMessage = new this.messageModel(data);
       await newMessage.save();
-      console.log("avant map mesg", newMessage);
-      console.log("apres map mesg", toGraphQLMessage(newMessage));
-
       return toGraphQLMessage(newMessage);
     }
     catch(e) {

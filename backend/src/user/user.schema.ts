@@ -1,12 +1,12 @@
 import { Schema, Document } from 'mongoose';
-import { Conversation } from 'src/conversation/conversation.model';
+
 
 export const UserSchema = new Schema({
   username: String,
   email: String,
   password: String,
-  timeStamp: Number,
-  conversations: [{ type: Schema.Types.ObjectId, ref: 'Conversation' }],
+  timeStamp: { type: Schema.Types.Number, default: Date.now },
+  conversationsIds: [{ type: Schema.Types.ObjectId, ref: 'Conversation' }],
 });
 
 UserSchema.set('toJSON', {
@@ -24,5 +24,5 @@ export interface User extends Document {
   email: string;
   password: string;
   timeStamp: number;
-  conversations?: Conversation[] | null;
+  conversationsIds?: string[];
 }
