@@ -1,8 +1,9 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { User } from './user.model';
 import { UserService } from './user.service';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { UserInput } from './user.dto';
+import { Types } from 'mongoose';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -10,6 +11,10 @@ export class UserResolver {
 
     @Query(returns => User)
     async user(@Args('id') id: string): Promise<User> {
+		
+		if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException(`Invalid ID format: ${id}`);
+        }
         const user = await this.userService.findOneById(id);
         if (!user) {
             throw new NotFoundException(id);
@@ -30,7 +35,7 @@ export class UserResolver {
     @Mutation(() => Boolean)
     async createUser(@Args('data') data: UserInput): Promise<boolean> {
 		try {
-			if(await this.userService.findOneByEmail(data.email) && await this.userService.findOneByUsername(data.username)){
+			if(!this.userService.findOneByEmail(data.email) && !this.userService.findOneByUsername(data.username)){
 				return await this.userService.create(data);
 			} else {
 				throw new Error('User already exists');
