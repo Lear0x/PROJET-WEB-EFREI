@@ -12,7 +12,23 @@ export class ConversationService {
 	constructor(
 		@InjectModel('Conversation') private readonly conversationModel: Model<MongooseConversation>,
 	) { }
+	constructor(
+		@InjectModel('Conversation') private readonly conversationModel: Model<MongooseConversation>,
+	) { }
 
+	async create(conversationInput: ConversationInput): Promise<boolean> {
+		try {
+			console.log('conversationInput => \n', JSON.stringify(conversationInput))
+			const newConversation = new this.conversationModel(conversationInput);
+			console.log('newConversation => \n', JSON.stringify(newConversation))
+			await newConversation.save();
+			return true;
+		} catch (e) {
+			console.error(e)
+			return false;
+		}
+
+	}
 	async create(conversationInput: ConversationInput): Promise<boolean> {
 		try {
 			console.log('conversationInput => \n', JSON.stringify(conversationInput))
@@ -31,7 +47,18 @@ export class ConversationService {
 		const conversations = await this.conversationModel.find().exec();
 		return conversations.map(toGraphQLConversation);
 	}
+	async findAll(): Promise<GraphQLConversation[]> {
+		const conversations = await this.conversationModel.find().exec();
+		return conversations.map(toGraphQLConversation);
+	}
 
+	async findOneById(id: string): Promise<GraphQLConversation> {
+		const conversation = await this.conversationModel.findById(id).exec();
+		if (!conversation) {
+			throw new NotFoundException(`Conversation with ID ${id} not found`);
+		}
+		return toGraphQLConversation(conversation);
+	}
 	async findOneById(id: string): Promise<GraphQLConversation> {
 		const conversation = await this.conversationModel.findById(id).exec();
 		if (!conversation) {
@@ -44,7 +71,15 @@ export class ConversationService {
 		const result = await this.conversationModel.findByIdAndDelete(id).exec();
 		return result !== null;
 	}
+	async remove(id: string): Promise<boolean> {
+		const result = await this.conversationModel.findByIdAndDelete(id).exec();
+		return result !== null;
+	}
 
+	async findByUserId(userId: string): Promise<GraphQLConversation[]> {
+		const conversations = await this.conversationModel.find({ users: userId }).exec();
+		return conversations.map(toGraphQLConversation);
+	}
 	async findByUserId(userId: string): Promise<GraphQLConversation[]> {
 		const conversations = await this.conversationModel.find({ users: userId }).exec();
 		return conversations.map(toGraphQLConversation);
@@ -85,7 +120,22 @@ export class ConversationService {
 		const conversations = await this.conversationModel.find({ title }).exec();
 		return conversations.map(toGraphQLConversation);
 	}
+	async findByTitle(title: string): Promise<GraphQLConversation[]> {
+		const conversations = await this.conversationModel.find({ title }).exec();
+		return conversations.map(toGraphQLConversation);
+	}
 
+	async addMessage(id: string, messageId: string): Promise<GraphQLConversation | null> {
+		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
+			id,
+			{ $push: { messages: messageId } },
+			{ new: true },
+		).exec();
+		if (!updatedConversation) {
+			return null;
+		}
+		return toGraphQLConversation(updatedConversation);
+	}
 	async addMessage(id: string, messageId: string): Promise<GraphQLConversation | null> {
 		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
 			id,
@@ -109,7 +159,29 @@ export class ConversationService {
 		}
 		return toGraphQLConversation(updatedConversation);
 	}
+	async removeMessage(id: string, messageId: string): Promise<GraphQLConversation | null> {
+		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
+			id,
+			{ $pull: { messages: messageId } },
+			{ new: true },
+		).exec();
+		if (!updatedConversation) {
+			return null;
+		}
+		return toGraphQLConversation(updatedConversation);
+	}
 
+	async addUser(id: string, userId: string): Promise<GraphQLConversation | null> {
+		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
+			id,
+			{ $push: { users: userId } },
+			{ new: true },
+		).exec();
+		if (!updatedConversation) {
+			return null;
+		}
+		return toGraphQLConversation(updatedConversation);
+	}
 	async addUser(id: string, userId: string): Promise<GraphQLConversation | null> {
 		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
 			id,
@@ -133,6 +205,17 @@ export class ConversationService {
 		}
 		return toGraphQLConversation(updatedConversation);
 	}
+	async removeUser(id: string, userId: string): Promise<GraphQLConversation | null> {
+		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
+			id,
+			{ $pull: { users: userId } },
+			{ new: true },
+		).exec();
+		if (!updatedConversation) {
+			return null;
+		}
+		return toGraphQLConversation(updatedConversation);
+	}
 
 	async addUsers(id: string, userIds: string[]): Promise<GraphQLConversation | null> {
 		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
@@ -145,7 +228,29 @@ export class ConversationService {
 		}
 		return toGraphQLConversation(updatedConversation);
 	}
+	async addUsers(id: string, userIds: string[]): Promise<GraphQLConversation | null> {
+		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
+			id,
+			{ $push: { users: { $each: userIds } } },
+			{ new: true },
+		).exec();
+		if (!updatedConversation) {
+			return null;
+		}
+		return toGraphQLConversation(updatedConversation);
+	}
 
+	async removeUsers(id: string, userIds: string[]): Promise<GraphQLConversation | null> {
+		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
+			id,
+			{ $pull: { users: { $in: userIds } } },
+			{ new: true },
+		).exec();
+		if (!updatedConversation) {
+			return null;
+		}
+		return toGraphQLConversation(updatedConversation);
+	}
 	async removeUsers(id: string, userIds: string[]): Promise<GraphQLConversation | null> {
 		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
 			id,
