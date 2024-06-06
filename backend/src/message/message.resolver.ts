@@ -3,16 +3,42 @@ import { Message } from './message.model';
 import { MessageInput } from './message.dto';
 import { MessageService } from './message.service';
 import { NotFoundException } from '@nestjs/common';
+import { ConversationService } from '../conversation/conversation.service';
+import { error } from 'console';
+import { UserService } from 'src/user/user.service';
 
 
 @Resolver(() => Message)
 export class MessageResolver {
 
-    constructor(private readonly messageService: MessageService) { }
+    constructor(
+        private readonly messageService: MessageService, 
+        private readonly conversationService: ConversationService,
+        private readonly userService: UserService
+    ) { }
 
-    @Mutation(returns => Message)
-    async createMessage(@Args('messageInput') messageInput: MessageInput): Promise<Message> {
-        return this.messageService.create(messageInput);
+    
+    @Mutation(() => Boolean)
+    async createMessage(@Args('data') data: MessageInput): Promise<boolean> {
+        const conv = await this.conversationService.findOneById(data.conversationId);
+        if(conv && await this.userService.findOneById(data.from)) {
+            const messageCreated = await this.messageService.create(data);
+            if(messageCreated) {
+                try {
+                    await this.conversationService.updateMessageId(conv.id, messageCreated.id);
+                    return true;
+                }
+                catch(e) {
+                    throw error(e);
+                }       
+            }
+            else {
+                throw error ("message not created")
+            }
+        }
+        else {
+            throw error("The conversation doesnt exist");
+        }    
     }
 
     @Mutation(returns => Message)

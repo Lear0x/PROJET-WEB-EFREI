@@ -8,7 +8,7 @@ export class MessageInput {
     content: string;
 
     @Field()
-    userId: string;
+    from: string;
 
     @Field(type => ID)
     conversationId: string;

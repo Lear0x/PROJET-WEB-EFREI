@@ -8,7 +8,7 @@ export function toGraphQLMessage(message: MongooseMessage): GraphQLMessage {
     id: message.id,
     content: message.content,
     from: message.from as any,
-    conversationId: message.conversation as any,
+    conversationId: message.conversationId as any,
     timeStamp: message.timeStamp,
   };
 }
@@ -17,7 +17,7 @@ export function toGraphQLConversation(conversation: MongooseConversation): Graph
   return {
     id: conversation.id,
     title: conversation.title,
-    messageIds: conversation.messages as any,
+    messageIds: conversation.messagesIds as any,
     userIds: conversation.userIds as any,
     timestamp: conversation.timestamp,
   };

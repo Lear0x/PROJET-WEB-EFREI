@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Conversation as GraphQLConversation } from './conversation.model';
+import { Conversation, Conversation as GraphQLConversation } from './conversation.model';
 import { Conversation as MongooseConversation } from './conversation.schema';
 import { ConversationInput } from './conversation.dto';
 import { toGraphQLConversation } from '../common/utils'; // Assurez-vous d'importer la fonction de transformation correctement
@@ -32,6 +32,7 @@ export class ConversationService {
 		return conversations.map(toGraphQLConversation);
 	}
 
+
 	async findOneById(id: string): Promise<GraphQLConversation> {
 		const conversation = await this.conversationModel.findById(id).exec();
 		if (!conversation) {
@@ -45,23 +46,49 @@ export class ConversationService {
 		return result !== null;
 	}
 
+
 	async findByUserId(userId: string): Promise<GraphQLConversation[]> {
 		const conversations = await this.conversationModel.find({ users: userId }).exec();
 		return conversations.map(toGraphQLConversation);
 	}
 
-	async update(id: string, conversationInput: ConversationInput): Promise<GraphQLConversation | null> {
-		const updatedConversation = await this.conversationModel.findByIdAndUpdate(id, conversationInput, { new: true }).exec();
-		if (!updatedConversation) {
+
+	async update(conv: Conversation): Promise<GraphQLConversation | null> {
+		console.log("conv COnvServiceUpdate :", conv);
+		const newConversation = new this.conversationModel(conv);
+		console.log("newCOnv COnvServiceUpdate :", newConversation);
+		newConversation.updateOne();
+		if (!newConversation) {
 			return null;
 		}
-		return toGraphQLConversation(updatedConversation);
+		return toGraphQLConversation(newConversation);
 	}
+
+	async updateMessageId(convId: string, msgId: string): Promise<GraphQLConversation | null> {
+		try {
+			console.log('convId =>', convId)
+			const conv = await this.conversationModel.findOne({ _id: convId }).exec();
+			if (conv) {
+				conv.messagesIds.push(msgId);
+				console.log('modifiedConv => ', JSON.stringify(conv));
+				conv.save();
+				return toGraphQLConversation(conv);
+
+			} else {
+				throw new NotFoundException();
+			}
+		} catch (e) {
+			throw Error(e);
+		}
+
+	}
+
 
 	async findByTitle(title: string): Promise<GraphQLConversation[]> {
 		const conversations = await this.conversationModel.find({ title }).exec();
 		return conversations.map(toGraphQLConversation);
 	}
+
 
 	async addMessage(id: string, messageId: string): Promise<GraphQLConversation | null> {
 		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
@@ -74,6 +101,7 @@ export class ConversationService {
 		}
 		return toGraphQLConversation(updatedConversation);
 	}
+
 
 	async removeMessage(id: string, messageId: string): Promise<GraphQLConversation | null> {
 		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
@@ -111,6 +139,7 @@ export class ConversationService {
 		return toGraphQLConversation(updatedConversation);
 	}
 
+
 	async addUsers(id: string, userIds: string[]): Promise<GraphQLConversation | null> {
 		const updatedConversation = await this.conversationModel.findByIdAndUpdate(
 			id,
@@ -134,4 +163,5 @@ export class ConversationService {
 		}
 		return toGraphQLConversation(updatedConversation);
 	}
+
 }

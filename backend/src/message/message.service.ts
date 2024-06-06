@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Message as GraphQLMessage } from './message.model';
+import { Message as GraphQLMessage, Message } from './message.model';
 import { Message as MongooseMessage, MessageSchema } from './message.schema';
 import { MessageInput } from './message.dto';
 import { toGraphQLMessage } from '../common/utils'; // Assurez-vous d'importer la fonction de transformation correctement
@@ -12,13 +12,21 @@ export class MessageService {
     @InjectModel('Message') private readonly messageModel: Model<MongooseMessage>,
   ) {}
 
-  async create(messageInput: MessageInput): Promise<GraphQLMessage> {
-    const newMessage = new this.messageModel({
-      ...messageInput,
-      timeStamp: new Date(),
-    });
-    const savedMessage = await newMessage.save();
-    return toGraphQLMessage(savedMessage);
+  async create(data: MessageInput): Promise<Message | null> {
+    console.log('création message');
+    try {
+      const newMessage = new this.messageModel(data);
+      await newMessage.save();
+      console.log("avant map mesg", newMessage);
+      console.log("apres map mesg", toGraphQLMessage(newMessage));
+
+      return toGraphQLMessage(newMessage);
+    }
+    catch(e) {
+      console.error(e)
+      return null;
+    }
+    
   }
 
   async findAll(): Promise<GraphQLMessage[]> {
