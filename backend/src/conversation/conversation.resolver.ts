@@ -3,6 +3,7 @@ import { Conversation } from "./conversation.model";
 import { ConversationService } from "./conversation.service";
 import { MessageService } from "../message/message.service";
 import { ConversationInput } from "./conversation.dto";
+import { NotFoundException } from "@nestjs/common";
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
@@ -13,7 +14,7 @@ export class ConversationResolver {
     {}
     
 	@Mutation(() => Boolean)
-    async createConversation(@Args('data') data: ConversationInput): Promise<Conversation> {
+    async createConversation(@Args('data') data: ConversationInput): Promise<boolean> {
         return this.conversationService.create(data);
     }
 
@@ -23,8 +24,12 @@ export class ConversationResolver {
     }
 
 	@Query(returns => Conversation)
-    async conversation(id: string): Promise<Conversation> {
-        return this.conversationService.findOneById(id);
+    async conversation(@Args('id') id: string): Promise<Conversation> {
+        const conversation = await this.conversationService.findOneById(id);
+        if (!conversation) {
+            throw new NotFoundException(id);
+        }
+        return conversation;
     }
 
 	@Query(returns => Boolean)

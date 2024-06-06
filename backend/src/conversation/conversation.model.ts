@@ -12,8 +12,8 @@ export class Conversation {
     @Field(type => [ID], { nullable: true }) // Liste d'identifiants de messages
     messageIds: string[];
 
-    @Field(type => [User])
-    users: User[];
+    @Field(type => [ID])
+    userIds: string[];
 
     @Field(type => Int) 
     timestamp: number;

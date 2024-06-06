@@ -3,7 +3,7 @@ import { Schema, Document } from 'mongoose';
 export const ConversationSchema = new Schema({
   title: { type: String, required: true },
   messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
-  users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  userIds: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   timestamp: { type: Schema.Types.Number, default: Date.now },
 });
 
@@ -20,6 +20,6 @@ export interface Conversation extends Document {
   id: string,
   title: string;
   messages: string[];
-  users: string[];
+  userIds: string[];
   timestamp: number;
 }

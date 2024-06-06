@@ -5,6 +5,7 @@ import { Conversation as GraphQLConversation } from './conversation.model';
 import { Conversation as MongooseConversation } from './conversation.schema';
 import { ConversationInput } from './conversation.dto';
 import { toGraphQLConversation } from '../common/utils'; // Assurez-vous d'importer la fonction de transformation correctement
+import { BlobOptions } from "buffer";
 
 @Injectable()
 export class ConversationService {
@@ -12,10 +13,18 @@ export class ConversationService {
     @InjectModel('Conversation') private readonly conversationModel: Model<MongooseConversation>,
   ) {}
 
-  async create(conversationInput: ConversationInput): Promise<GraphQLConversation> {
-    const newConversation = new this.conversationModel(conversationInput);
-    const savedConversation = await newConversation.save();
-    return toGraphQLConversation(savedConversation);
+  async create(conversationInput: ConversationInput): Promise<boolean> {
+    try {
+      console.log('conversationInput => \n', JSON.stringify(conversationInput))
+      const newConversation = new this.conversationModel(conversationInput);
+      console.log('newConversation => \n', JSON.stringify(newConversation))
+      await newConversation.save();
+      return true;
+    } catch(e) {
+      console.error(e)
+      return false;
+    }
+    
   }
 
   async findAll(): Promise<GraphQLConversation[]> {
