@@ -57,10 +57,10 @@ export class ConversationResolver {
         return this.conversationService.removeMessage(id, messageId);
     }
 
-	@Query(returns => Boolean)
-    async updateConversation(id: string, conversation: ConversationInput): Promise<Conversation | null> {
-        return this.conversationService.update(id, conversation);
-    }
+	// @Query(returns => Boolean)
+    // async updateConversation(id: string, conversation: ConversationInput): Promise<Conversation | null> {
+    //     return this.conversationService.update(conversation);
+    // }
     
 	@Query(returns => Boolean)
     async addUserToConversation(id: string, userId: string): Promise<Conversation | null> {
