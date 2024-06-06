@@ -56,7 +56,7 @@ jobs:
       # creer sur render puis curl sur l'url dans settings compte acces team
 
       # Déploiement sur Render
-      - name: Deploy to Render
-        run: |
-          render deploy --image learox/backend-backend_whatsapp_de_wish:latest
+      #- name: Deploy to Render
+      #  run: |
+      #    render deploy --image learox/backend-backend_whatsapp_de_wish:latest
 
