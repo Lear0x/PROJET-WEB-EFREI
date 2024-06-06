@@ -35,7 +35,11 @@ export class UserResolver {
     @Mutation(() => Boolean)
     async createUser(@Args('data') data: UserInput): Promise<boolean> {
 		try {
-			if(!this.userService.findOneByEmail(data.email) && !this.userService.findOneByUsername(data.username)){
+			if(!data.email){
+				throw new BadRequestException('Missing input fields')
+			}
+
+			if(!await this.userService.checkExists(data.email)){
 				return await this.userService.create(data);
 			} else {
 				throw new Error('User already exists');
