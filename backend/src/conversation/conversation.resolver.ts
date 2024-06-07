@@ -47,40 +47,30 @@ export class ConversationResolver {
         return this.conversationService.findByTitle(title);
     }
 
-	@Query(returns => Conversation)
-    async addMessageToConversation(id: string, messageId: string): Promise<Conversation | null> {
-        return this.conversationService.addMessage(id, messageId);
-    }
-
-	@Query(returns => Conversation)
-    async removeMessageFromConversation(id: string, messageId: string): Promise<Conversation | null> {
-        return this.conversationService.removeMessage(id, messageId);
-    }
-
 	// @Query(returns => Boolean)
     // async updateConversation(id: string, conversation: ConversationInput): Promise<Conversation | null> {
     //     return this.conversationService.update(conversation);
     // }
     
-	@Query(returns => Boolean)
-    async addUserToConversation(id: string, userId: string): Promise<Conversation | null> {
-        return this.conversationService.addUser(id, userId);
-    }
+	// @Query(returns => Boolean)
+    // async addUserToConversation(id: string, userId: string): Promise<Conversation | null> {
+    //     return this.conversationService.addUser(id, userId);
+    // }
 
-	@Query(returns => Boolean)
-    async removeUserFromConversation(id: string, userId: string): Promise<Conversation | null> {
-        return this.conversationService.removeUser(id, userId);
-    }
+	// @Query(returns => Boolean)
+    // async removeUserFromConversation(id: string, userId: string): Promise<Conversation | null> {
+    //     return this.conversationService.removeUser(id, userId);
+    // }
 
-	@Query(returns => Boolean)
-    async addUsersToConversation(id: string, userIds: string[]): Promise<Conversation | null> {
-        return this.conversationService.addUsers(id, userIds);
-    }
+	// @Query(returns => Boolean)
+    // async addUsersToConversation(id: string, userIds: string[]): Promise<Conversation | null> {
+    //     return this.conversationService.addUsers(id, userIds);
+    // }
 
-	@Query(returns => Boolean)
-    async removeUsersFromConversation(id: string, userIds: string[]): Promise<Conversation | null> {
-        return this.conversationService.removeUsers(id, userIds);
-    }
+	// @Query(returns => Boolean)
+    // async removeUsersFromConversation(id: string, userIds: string[]): Promise<Conversation | null> {
+    //     return this.conversationService.removeUsers(id, userIds);
+    // }
 
     
 }
