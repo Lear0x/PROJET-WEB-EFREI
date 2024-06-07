@@ -1,166 +1,166 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserResolver } from 'src/user/user.resolvers';
-import { UserService } from 'src/user/user.service';
-import { User } from 'src/user/user.model';
+import { UserResolver } from '../src/user/user.resolvers';
+import { UserService } from '../src/user/user.service';
+import { User } from '../src/user/user.model';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { UserInput } from 'src/user/user.dto';
+import { UserInput } from '../src/user/user.dto';
 
 describe('UserResolver', () => {
-  let resolver: UserResolver;
-  let userService: UserService;
+	let resolver: UserResolver;
+	let userService: UserService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserResolver,
-        {
-          provide: UserService,
-          useValue: {
-            findOneById: jest.fn(),
-            findOneByEmail: jest.fn(),
-            findOneByUsername: jest.fn(),
-            create: jest.fn(),
-            remove: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+	beforeEach(async () => {
+		const module: TestingModule = await Test.createTestingModule({
+			providers: [
+				UserResolver,
+				{
+					provide: UserService,
+					useValue: {
+						findOneById: jest.fn(),
+						findOneByEmail: jest.fn(),
+						findOneByUsername: jest.fn(),
+						create: jest.fn(),
+						remove: jest.fn(),
+					},
+				},
+			],
+		}).compile();
 
-    resolver = module.get<UserResolver>(UserResolver);
-    userService = module.get<UserService>(UserService);
-  });
+		resolver = module.get<UserResolver>(UserResolver);
+		userService = module.get<UserService>(UserService);
+	});
 
-  it('should be defined', () => {
-    expect(resolver).toBeDefined();
-  });
+	it('should be defined', () => {
+		expect(resolver).toBeDefined();
+	});
 
-  describe('user', () => {
-    it('should throw BadRequestException for an invalid ID', async () => {
-      const invalidId = '123';
+	describe('user', () => {
+		it('should throw BadRequestException for an invalid ID', async () => {
+			const invalidId = '123';
 
-      await expect(resolver.user(invalidId)).rejects.toThrow(BadRequestException);
-      await expect(resolver.user(invalidId)).rejects.toThrow(`Invalid ID format: ${invalidId}`);
-    });
+			await expect(resolver.user(invalidId)).rejects.toThrow(BadRequestException);
+			await expect(resolver.user(invalidId)).rejects.toThrow(`Invalid ID format: ${invalidId}`);
+		});
 
-    it('should throw NotFoundException if user not found', async () => {
-      const validId = new Types.ObjectId().toString();
-      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(null);
+		it('should throw NotFoundException if user not found', async () => {
+			const validId = new Types.ObjectId().toString();
+			jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(null);
 
-      await expect(resolver.user(validId)).rejects.toThrow(NotFoundException);
-      await expect(resolver.user(validId)).rejects.toThrow(validId);
-    });
+			await expect(resolver.user(validId)).rejects.toThrow(NotFoundException);
+			await expect(resolver.user(validId)).rejects.toThrow(validId);
+		});
 
-    it('should return a user if found', async () => {
-      const validId = new Types.ObjectId().toString();
-      const mockUser: User = {
-        id: validId,
-        username: 'testuser',
-        email: 'testuser@example.com',
-        password: 'password',
-        timeStamp: Date.now(),
-      };
+		it('should return a user if found', async () => {
+			const validId = new Types.ObjectId().toString();
+			const mockUser = {
+				id: validId,
+				username: 'testuser',
+				email: 'testuser@example.com',
+				password: 'password',
+				timeStamp: Date.now(),
+			};
+		
+			jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(Promise.resolve(mockUser as import("../src/user/user.schema").User | null | undefined));
+		
+			const result = await resolver.user(validId);
+			expect(result).toEqual(mockUser);
+		});
+	});
 
-      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(mockUser);
+	describe('createUser', () => {
+		it('should throw error if user already exists', async () => {
+			const existingUser: User = {
+				id: '1',
+				username: 'existinguser',
+				email: 'existing@example.com',
+				password: 'password',
+				timeStamp: Date.now(),
+				conversations: []
+			};
+			const mockUserData: UserInput = {
+				username: 'existinguser',
+				email: 'existing@example.com',
+				password: 'password',
+			};
 
-      const result = await resolver.user(validId);
-      expect(result).toEqual(mockUser);
-    });
-  });
+			jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(Promise.resolve(existingUser as import("../src/user/user.schema").User | null | undefined));
+			jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(Promise.resolve(existingUser as import("../src/user/user.schema").User | null | undefined));
 
-  describe('createUser', () => {
-    it('should throw error if user already exists', async () => {
-      const existingUser: User = {
-        id: '1',
-        username: 'existinguser',
-        email: 'existing@example.com',
-        password: 'password',
-        timeStamp: Date.now(),
-        conversations : []
-      };
-      const mockUserData: UserInput = {
-        username: 'existinguser',
-        email: 'existing@example.com',
-        password: 'password',
-      };
+			await expect(resolver.createUser(mockUserData)).rejects.toThrowError('User already exists');
+		});
 
-      jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(existingUser);
-      jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(existingUser);
+		it('should create a user if user does not exist', async () => {
+			const mockUserData: UserInput = {
+				username: 'newuser',
+				email: 'newuser@example.com',
+				password: 'password',
+			};
 
-      await expect(resolver.createUser(mockUserData)).rejects.toThrowError('User already exists');
-    });
+			await resolver.createUser(mockUserData);
 
-    it('should create a user if user does not exist', async () => {
-      const mockUserData: UserInput = {
-        username: 'newuser',
-        email: 'newuser@example.com',
-        password: 'password',
-      };
+			expect(userService.create).toHaveBeenCalledWith(mockUserData);
+		});
+	});
 
-      await resolver.createUser(mockUserData);
+	describe('removeUser', () => {
+		it('should throw BadRequestException for an invalid ID', async () => {
+			const invalidId = '123';
 
-      expect(userService.create).toHaveBeenCalledWith(mockUserData);
-    });
-  });
+			await expect(resolver.removeUser(invalidId)).rejects.toThrow(BadRequestException);
+			await expect(resolver.removeUser(invalidId)).rejects.toThrow(`Invalid ID format: ${invalidId}`);
+		});
 
-  describe('removeUser', () => {
-    it('should throw BadRequestException for an invalid ID', async () => {
-      const invalidId = '123';
+		it('should throw NotFoundException if user not found', async () => {
+			const validId = new Types.ObjectId().toString();
 
-      await expect(resolver.removeUser(invalidId)).rejects.toThrow(BadRequestException);
-      await expect(resolver.removeUser(invalidId)).rejects.toThrow(`Invalid ID format: ${invalidId}`);
-    });
+			await expect(resolver.removeUser(validId)).rejects.toThrow(NotFoundException);
+			await expect(resolver.removeUser(validId)).rejects.toThrow(validId);
+		});
 
-    it('should throw NotFoundException if user not found', async () => {
-      const validId = new Types.ObjectId().toString();
+		it('should remove a user if found', async () => {
+			const validId = new Types.ObjectId().toString();
 
-      await expect(resolver.removeUser(validId)).rejects.toThrow(NotFoundException);
-      await expect(resolver.removeUser(validId)).rejects.toThrow(validId);
-    });
+			await resolver.removeUser(validId);
 
-    it('should remove a user if found', async () => {
-      const validId = new Types.ObjectId().toString();
+			expect(userService.remove).toHaveBeenCalledWith(validId);
+		});
+	});
 
-      await resolver.removeUser(validId);
+	describe('getUsers', () => {
+		it('should return an array of users', async () => {
+			const mockUsers: any[] = [
+				{
+					id: '1',
+					username: 'user1',
+					email: 'user1@example.com',
+					password: 'password',
+					timeStamp: Date.now(),
+				},
+				{
+					id: '2',
+					username: 'user2',
+					email: 'user2@example.com',
+					password: 'password',
+					timeStamp: Date.now(),
+				},
+			];
 
-      expect(userService.remove).toHaveBeenCalledWith(validId);
-    });
-  });
+			jest.spyOn(userService, 'findAll').mockResolvedValueOnce(mockUsers);
 
-  describe('getUsers', () => {
-    it('should return an array of users', async () => {
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          username: 'user1',
-          email: 'user1@example.com',
-          password: 'password',
-          timeStamp: Date.now(),
-        },
-        {
-          id: '2',
-          username: 'user2',
-          email: 'user2@example.com',
-          password: 'password',
-          timeStamp: Date.now(),
-        },
-      ];
+			const result = await resolver.getUsers();
+			expect(result).toEqual(mockUsers);
+		});
 
-      jest.spyOn(userService, 'getUsers').mockResolvedValueOnce(mockUsers);
+		it('should return an empty array if no users found', async () => {
+			const mockEmptyUsers: any[] = [];
 
-      const result = await resolver.getUsers();
-      expect(result).toEqual(mockUsers);
-    });
+			jest.spyOn(userService, 'findAll').mockResolvedValueOnce(mockEmptyUsers);
 
-    it('should return an empty array if no users found', async () => {
-      const mockEmptyUsers: User[] = [];
-
-      jest.spyOn(userService, 'getUsers').mockResolvedValueOnce(mockEmptyUsers);
-
-      const result = await resolver.getUsers();
-      expect(result).toEqual([]);
-    });
-  });
+			const result = await resolver.getUsers();
+			expect(result).toEqual([]);
+		});
+	});
 
 });
 

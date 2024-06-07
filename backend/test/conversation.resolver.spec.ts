@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConversationResolver } from 'src/conversation/conversation.resolver';
-import { ConversationService } from 'src/conversation/conversation.service';
-import { MessageService } from 'src/message/message.service';
-import { Conversation } from 'src/conversation/conversation.model';
+import { ConversationResolver } from '../src/conversation/conversation.resolver';
+import { ConversationService } from '../src/conversation/conversation.service';
+import { MessageService } from '../src/message/message.service';
+import { Conversation } from '../src/conversation/conversation.model';
 import { NotFoundException } from '@nestjs/common';
 
 
