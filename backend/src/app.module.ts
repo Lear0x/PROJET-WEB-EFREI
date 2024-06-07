@@ -10,6 +10,8 @@ import { UserModule } from './user/user.module';
 import { MessageModule } from './message/message.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { MongoDBConfig } from './common/mongodb.config';
+import { BullMQModule } from './bullmq/bullmq.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
     imports:
@@ -21,7 +23,8 @@ import { MongoDBConfig } from './common/mongodb.config';
             MongoDBConfig,
             UserModule,
             MessageModule,
-            ConversationModule
+            ConversationModule,
+            BullMQModule,
         ],
     controllers: [AppController, HealthController],
     providers: [AppService, AppResolver],

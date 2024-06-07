@@ -62,7 +62,7 @@ export class ConversationService {
 		return toGraphQLConversation(newConversation);
 	}
 
-	async updateMessageId(convId: string, msgId: string): Promise<GraphQLConversation | null> {
+	async addMsgIdToConv(convId: string, msgId: string): Promise<GraphQLConversation | null> {
 		try {
 			console.log('convId =>', convId)
 			const conv = await this.conversationModel.findOne({ _id: convId }).exec();
