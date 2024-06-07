@@ -33,12 +33,8 @@ export class ConversationService {
 	}
 
 
-	async findOneById(id: string): Promise<GraphQLConversation> {
-		const conversation = await this.conversationModel.findById(id).exec();
-		if (!conversation) {
-			throw new NotFoundException(`Conversation with ID ${id} not found`);
-		}
-		return toGraphQLConversation(conversation);
+	async findOneById(id: string): Promise<Conversation | null | undefined> {
+		return await this.conversationModel.findById(id).exec();
 	}
 
 	async remove(id: string): Promise<boolean> {
@@ -69,7 +65,7 @@ export class ConversationService {
 			console.log('convId =>', convId)
 			const conv = await this.conversationModel.findOne({ _id: convId }).exec();
 			if (conv) {
-				conv.messagesIds.push(msgId);
+				conv.messageIds.push(msgId);
 				console.log('modifiedConv => ', JSON.stringify(conv));
 				conv.save();
 				return toGraphQLConversation(conv);

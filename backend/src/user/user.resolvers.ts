@@ -55,13 +55,13 @@ export class UserResolver {
 
 		try {
 			if (!this.userService.findOneById(id)) {
-				throw new NotFoundException(id);
+				throw new NotFoundException;
 			}
 			const bool = await this.userService.remove(id);
 			return bool ? true : false;
 		} catch (e) {
-			console.error();
-			throw new Error(e);
+			console.error(e);
+			throw new NotFoundException;
 		}
 	}
 

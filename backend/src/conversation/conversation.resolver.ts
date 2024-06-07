@@ -3,7 +3,8 @@ import { Conversation } from "./conversation.model";
 import { ConversationService } from "./conversation.service";
 import { MessageService } from "../message/message.service";
 import { ConversationInput } from "./conversation.dto";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { Types } from "mongoose";
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
@@ -25,11 +26,15 @@ export class ConversationResolver {
 
 	@Query(returns => Conversation)
     async conversation(@Args('id') id: string): Promise<Conversation> {
-        const conversation = await this.conversationService.findOneById(id);
-        if (!conversation) {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException(`Invalid ID format: ${id}`);
+        }
+
+        const conv = await this.conversationService.findOneById(id);
+        if (!conv) {
             throw new NotFoundException(id);
         }
-        return conversation;
+        return conv;
     }
 
 	@Query(returns => Boolean)

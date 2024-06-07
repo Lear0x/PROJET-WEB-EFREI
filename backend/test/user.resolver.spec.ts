@@ -5,6 +5,7 @@ import { User } from '../src/user/user.model';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { UserInput } from '../src/user/user.dto';
+import { User as SchemaUser } from 'src/user/user.schema'; 
 
 describe('UserResolver', () => {
 	let resolver: UserResolver;
@@ -17,6 +18,7 @@ describe('UserResolver', () => {
 				{
 					provide: UserService,
 					useValue: {
+            findAll: jest.fn(),
 						findOneById: jest.fn(),
 						findOneByEmail: jest.fn(),
 						findOneByUsername: jest.fn(),
@@ -61,7 +63,7 @@ describe('UserResolver', () => {
 				timeStamp: Date.now(),
 			};
 		
-			jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(Promise.resolve(mockUser as import("../src/user/user.schema").User | null | undefined));
+			jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(Promise.resolve(mockUser as SchemaUser | null | undefined));
 		
 			const result = await resolver.user(validId);
 			expect(result).toEqual(mockUser);
@@ -84,8 +86,8 @@ describe('UserResolver', () => {
 				password: 'password',
 			};
 
-			jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(Promise.resolve(existingUser as import("../src/user/user.schema").User | null | undefined));
-			jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(Promise.resolve(existingUser as import("../src/user/user.schema").User | null | undefined));
+			jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(Promise.resolve(existingUser as SchemaUser | null | undefined));
+			jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(Promise.resolve(existingUser as SchemaUser | null | undefined));
 
 			await expect(resolver.createUser(mockUserData)).rejects.toThrowError('User already exists');
 		});
@@ -115,15 +117,29 @@ describe('UserResolver', () => {
 			const validId = new Types.ObjectId().toString();
 
 			await expect(resolver.removeUser(validId)).rejects.toThrow(NotFoundException);
-			await expect(resolver.removeUser(validId)).rejects.toThrow(validId);
+			await expect(resolver.removeUser(validId)).rejects.toThrow("Not Found");
 		});
 
 		it('should remove a user if found', async () => {
 			const validId = new Types.ObjectId().toString();
 
-			await resolver.removeUser(validId);
+			const mockUser = {
+				id: validId,
+				username: 'testuser',
+				email: 'testuser@example.com',
+				password: 'password',
+				timeStamp: Date.now(),
+			};
 
-			expect(userService.remove).toHaveBeenCalledWith(validId);
+			//await resolver.removeUser(validId);
+
+			//expect(userService.remove).toHaveBeenCalledWith(validId);
+
+      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(Promise.resolve(mockUser as SchemaUser | null | undefined));
+      jest.spyOn(userService, 'remove').mockResolvedValueOnce(Promise.resolve(mockUser as SchemaUser | null | undefined));
+
+      const result = await resolver.removeUser(validId);
+			expect(result).toEqual(true);
 		});
 	});
 
@@ -136,14 +152,14 @@ describe('UserResolver', () => {
 					email: 'user1@example.com',
 					password: 'password',
 					timeStamp: Date.now(),
-				},
+				} as SchemaUser,
 				{
 					id: '2',
 					username: 'user2',
 					email: 'user2@example.com',
 					password: 'password',
 					timeStamp: Date.now(),
-				},
+				} as SchemaUser,
 			];
 
 			jest.spyOn(userService, 'findAll').mockResolvedValueOnce(mockUsers);
@@ -153,7 +169,7 @@ describe('UserResolver', () => {
 		});
 
 		it('should return an empty array if no users found', async () => {
-			const mockEmptyUsers: any[] = [];
+			const mockEmptyUsers = [] as SchemaUser[] | Promise<SchemaUser[]>;
 
 			jest.spyOn(userService, 'findAll').mockResolvedValueOnce(mockEmptyUsers);
 

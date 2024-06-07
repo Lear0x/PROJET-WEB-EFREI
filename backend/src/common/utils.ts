@@ -17,7 +17,7 @@ export function toGraphQLConversation(conversation: MongooseConversation): Graph
   return {
     id: conversation.id,
     title: conversation.title,
-    messageIds: conversation.messagesIds as any,
+    messageIds: conversation.messageIds as any,
     userIds: conversation.userIds as any,
     timestamp: conversation.timestamp,
   };

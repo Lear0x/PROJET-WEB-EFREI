@@ -2,7 +2,7 @@ import { Schema, Document } from 'mongoose';
 
 export const ConversationSchema = new Schema({
   title: { type: String, required: true },
-  messagesIds: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
+  messageIds: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
   userIds: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   timestamp: { type: Schema.Types.Number, default: Date.now },
 });
@@ -19,7 +19,7 @@ ConversationSchema.set('toJSON', {
 export interface Conversation extends Document {
   id: string,
   title: string;
-  messagesIds: string[];
+  messageIds: string[];
   userIds: string[];
   timestamp: number;
 }
