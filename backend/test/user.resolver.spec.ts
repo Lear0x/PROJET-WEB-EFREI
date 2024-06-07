@@ -18,6 +18,10 @@ describe('UserResolver', () => {
           provide: UserService,
           useValue: {
             findOneById: jest.fn(),
+            findOneByEmail: jest.fn(),
+            findOneByUsername: jest.fn(),
+            create: jest.fn(),
+            remove: jest.fn(),
           },
         },
       ],
@@ -57,38 +61,10 @@ describe('UserResolver', () => {
         timeStamp: Date.now(),
       };
 
+      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(mockUser);
+
       const result = await resolver.user(validId);
       expect(result).toEqual(mockUser);
-    });
-  });
-
-
-  describe('users', () => {
-    it('should return an array of users', async () => {
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          username: 'user1',
-          email: 'user1@example.com',
-          password: 'password',
-          timeStamp: Date.now(),
-        },
-        {
-          id: '2',
-          username: 'user2',
-          email: 'user2@example.com',
-          password: 'password',
-          timeStamp: Date.now(),
-        },
-      ];
-
-      const result = await resolver.getUsers();
-      expect(result).toEqual(mockUsers);
-    });
-
-    it('should return an empty array if no users found', async () => {
-      const result = await resolver.getUsers();
-      expect(result).toEqual([]);
     });
   });
 
@@ -100,29 +76,32 @@ describe('UserResolver', () => {
         email: 'existing@example.com',
         password: 'password',
         timeStamp: Date.now(),
+        conversations : []
       };
       const mockUserData: UserInput = {
         username: 'existinguser',
         email: 'existing@example.com',
         password: 'password',
       };
-  
+
+      jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(existingUser);
+      jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(existingUser);
+
       await expect(resolver.createUser(mockUserData)).rejects.toThrowError('User already exists');
     });
-  
+
     it('should create a user if user does not exist', async () => {
       const mockUserData: UserInput = {
         username: 'newuser',
         email: 'newuser@example.com',
         password: 'password',
       };
-  
+
       await resolver.createUser(mockUserData);
-  
+
       expect(userService.create).toHaveBeenCalledWith(mockUserData);
     });
   });
-  
 
   describe('removeUser', () => {
     it('should throw BadRequestException for an invalid ID', async () => {
@@ -148,5 +127,40 @@ describe('UserResolver', () => {
     });
   });
 
+  describe('getUsers', () => {
+    it('should return an array of users', async () => {
+      const mockUsers: User[] = [
+        {
+          id: '1',
+          username: 'user1',
+          email: 'user1@example.com',
+          password: 'password',
+          timeStamp: Date.now(),
+        },
+        {
+          id: '2',
+          username: 'user2',
+          email: 'user2@example.com',
+          password: 'password',
+          timeStamp: Date.now(),
+        },
+      ];
+
+      jest.spyOn(userService, 'getUsers').mockResolvedValueOnce(mockUsers);
+
+      const result = await resolver.getUsers();
+      expect(result).toEqual(mockUsers);
+    });
+
+    it('should return an empty array if no users found', async () => {
+      const mockEmptyUsers: User[] = [];
+
+      jest.spyOn(userService, 'getUsers').mockResolvedValueOnce(mockEmptyUsers);
+
+      const result = await resolver.getUsers();
+      expect(result).toEqual([]);
+    });
+  });
 
 });
+
