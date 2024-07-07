@@ -18,7 +18,7 @@ describe('UserResolver', () => {
 				{
 					provide: UserService,
 					useValue: {
-            findAll: jest.fn(),
+            			findAll: jest.fn(),
 						findOneById: jest.fn(),
 						findOneByEmail: jest.fn(),
 						findOneByUsername: jest.fn(),
