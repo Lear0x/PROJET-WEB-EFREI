@@ -35,7 +35,10 @@ export class UserResolver {
     @Mutation(() => Boolean)
     async createUser(@Args('data') data: UserInput): Promise<boolean> {
 		try {
-			if(!this.userService.findOneByEmail(data.email) && !this.userService.findOneByUsername(data.username)){
+			const resultEmail = await this.userService.findOneByEmail(data.email);
+			const resultUsername = await this.userService.findOneByUsername(data.username);
+
+			if(!resultEmail && !resultUsername){
 				return await this.userService.create(data);
 			} else {
 				throw new Error('User already exists');

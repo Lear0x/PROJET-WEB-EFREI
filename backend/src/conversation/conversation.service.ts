@@ -27,7 +27,7 @@ export class ConversationService {
 
 	}
 
-	async findAll(): Promise<GraphQLConversation[]> {
+	async findAll(): Promise<Conversation[]> {
 		const conversations = await this.conversationModel.find().exec();
 		return conversations.map(toGraphQLConversation);
 	}
@@ -43,8 +43,8 @@ export class ConversationService {
 	}
 
 
-	async findByUserId(userId: string): Promise<GraphQLConversation[]> {
-		const conversations = await this.conversationModel.find({ users: userId }).exec();
+	async findByUserId(userId: string): Promise<Conversation[]> {
+		const conversations = await this.conversationModel.find({ userIds: userId }).exec();
 		return conversations.map(toGraphQLConversation);
 	}
 
@@ -80,8 +80,8 @@ export class ConversationService {
 	}
 
 
-	async findByTitle(title: string): Promise<GraphQLConversation[]> {
-		const conversations = await this.conversationModel.find({ title }).exec();
+	async findByTitle(title: string): Promise<Conversation[]> {
+		const conversations = await this.conversationModel.find({ title: title }).exec();
 		return conversations.map(toGraphQLConversation);
 	}
 

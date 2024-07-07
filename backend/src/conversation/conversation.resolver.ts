@@ -39,16 +39,23 @@ export class ConversationResolver {
 
 	@Query(returns => Boolean)
     async removeConversation(id: string): Promise<boolean> {
-        return this.conversationService.remove(id);
+        const conv = await this.conversationService.findOneById(id);
+        if (!conv || undefined) {
+            throw new NotFoundException(id);
+        }
+        else {
+            return await this.conversationService.remove(id);
+        }
+        
     }
 
 	@Query(returns => [Conversation])
-    async conversationByUserId(userId: string): Promise<Conversation[]> {
+    async conversationByUserId(@Args('userId') userId: string): Promise<Conversation[]> {
         return this.conversationService.findByUserId(userId);
     }  
 
 	@Query(returns=> [Conversation])
-    async conversationByTitle(title: string): Promise<Conversation[]> {
+    async conversationByTitle(@Args('title') title: string): Promise<Conversation[]> {
         return this.conversationService.findByTitle(title);
     }
 

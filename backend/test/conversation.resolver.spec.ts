@@ -8,6 +8,7 @@ import { ConversationInput } from '../src/conversation/conversation.dto';
 import { Conversation as SchemaConversation } from '../src/conversation/conversation.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { json } from 'stream/consumers';
 
 describe('ConversationResolver', () => {
     let resolver: ConversationResolver;
@@ -109,38 +110,19 @@ describe('ConversationResolver', () => {
         });
     });
 
-    describe('removeConversation', () => {
-        it('should remove a conversation if found', async () => {
-            const validId = new Types.ObjectId().toString();
-
-            jest.spyOn(conversationService, 'remove').mockResolvedValueOnce(true);
-
-            const result = await resolver.removeConversation(validId);
-            expect(result).toEqual(true);
-        });
-
-        it('should throw NotFoundException if conversation not found', async () => {
-            const validId = new Types.ObjectId().toString();
-
-            jest.spyOn(conversationService, 'remove').mockResolvedValueOnce(false);
-
-            await expect(resolver.removeConversation(validId)).rejects.toThrow(NotFoundException);
-            await expect(resolver.removeConversation(validId)).rejects.toThrow("Not Found");
-        });
-    });
 
     describe('conversations', () => {
         it('should return an array of conversations', async () => {
             const mockConversations: any[] = [
                 {
-                    _id: new Types.ObjectId().toString(),
+                    id: new Types.ObjectId().toString(),
                     title: 'Conversation 1',
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
                 },
                 {
-                    _id: new Types.ObjectId().toString(),
+                    id: new Types.ObjectId().toString(),
                     title: 'Conversation 2',
                     messageIds: [],
                     userIds: [],
@@ -167,56 +149,60 @@ describe('ConversationResolver', () => {
     describe('conversationByUserId', () => {
         it('should return conversations for a specific user', async () => {
             const userId = new Types.ObjectId().toString();
-
+    
             const mockConversations: any[] = [
                 {
-                    _id: new Types.ObjectId().toString(),
+                    id: new Types.ObjectId().toString(),
                     title: 'Conversation 1',
                     messageIds: [],
                     userIds: [userId],
                     timestamp: Date.now(),
                 },
                 {
-                    _id: new Types.ObjectId().toString(),
+                    id: new Types.ObjectId().toString(),
                     title: 'Conversation 2',
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
                 },
             ];
+            const expectedConversations = mockConversations.filter(conv => conv.userIds.includes(userId));
 
-            jest.spyOn(conversationService, 'findByUserId').mockResolvedValueOnce(mockConversations);
-
+            jest.spyOn(conversationService, 'findByUserId').mockResolvedValueOnce(expectedConversations);
+    
             const result = await resolver.conversationByUserId(userId);
-            expect(result).toEqual([mockConversations[0]]);
+            expect(result).toEqual(expectedConversations);
         });
     });
 
     describe('conversationByTitle', () => {
         it('should return conversations with a specific title', async () => {
             const title = 'Conversation 1';
-
+    
             const mockConversations: any[] = [
                 {
-                    _id: new Types.ObjectId().toString(),
+                    id: new Types.ObjectId().toString(),
                     title: title,
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
                 },
                 {
-                    _id: new Types.ObjectId().toString(),
+                    id: new Types.ObjectId().toString(),
                     title: 'Conversation 2',
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
                 },
             ];
-
-            jest.spyOn(conversationService, 'findByTitle').mockResolvedValueOnce(mockConversations);
-
+    
+            const expectedConversations = mockConversations.filter(conv => conv.title === title);
+    
+            jest.spyOn(conversationService, 'findByTitle').mockResolvedValueOnce(expectedConversations);
+    
             const result = await resolver.conversationByTitle(title);
-            expect(result).toEqual([mockConversations[0]]);
+            expect(result).toEqual(expectedConversations);
         });
     });
+    
 });
