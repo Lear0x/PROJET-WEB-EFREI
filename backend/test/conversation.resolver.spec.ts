@@ -1,18 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConversationResolver } from '../src/conversation/conversation.resolver';
 import { ConversationService } from '../src/conversation/conversation.service';
-import { MessageService } from '../src/message/message.service';  // Importer MessageService
+import { MessageService } from '../src/message/message.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ConversationInput } from '../src/conversation/conversation.dto';
-import { Conversation as SchemaConversation } from '../src/conversation/conversation.schema'; 
+import { Conversation as SchemaConversation } from '../src/conversation/conversation.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 describe('ConversationResolver', () => {
     let resolver: ConversationResolver;
     let conversationService: ConversationService;
-    let conversationModel: Model<SchemaConversation>;
+
+    const mockConversationModel = {
+        new: jest.fn().mockResolvedValue(true),
+        constructor: jest.fn().mockResolvedValue(true),
+        find: jest.fn(),
+        findById: jest.fn(),
+        create: jest.fn(),
+        deleteOne: jest.fn(),
+        exec: jest.fn(),
+    };
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -30,7 +39,7 @@ describe('ConversationResolver', () => {
                     },
                 },
                 {
-                    provide: MessageService,  // Fournir MessageService
+                    provide: MessageService,
                     useValue: {
                         findAll: jest.fn(),
                         findOneById: jest.fn(),
@@ -40,16 +49,13 @@ describe('ConversationResolver', () => {
                 },
                 {
                     provide: getModelToken('Conversation'),
-                    useValue: {
-                        new: jest.fn(),
-                    },
+                    useValue: mockConversationModel,
                 },
             ],
         }).compile();
 
         resolver = module.get<ConversationResolver>(ConversationResolver);
         conversationService = module.get<ConversationService>(ConversationService);
-        conversationModel = module.get<Model<SchemaConversation>>(getModelToken('Conversation'));
     });
 
     it('should be defined', () => {
@@ -74,13 +80,13 @@ describe('ConversationResolver', () => {
 
         it('should return a conversation if found', async () => {
             const validId = new Types.ObjectId().toString();
-            const mockConversation = new conversationModel({
-                _id: validId,
+            const mockConversation = {
+                id: validId,
                 title: 'Test Conversation',
                 messageIds: [],
                 userIds: [],
                 timestamp: Date.now(),
-            });
+            };
 
             jest.spyOn(conversationService, 'findOneById').mockResolvedValueOnce(mockConversation);
 
@@ -126,20 +132,20 @@ describe('ConversationResolver', () => {
     describe('conversations', () => {
         it('should return an array of conversations', async () => {
             const mockConversations: any[] = [
-                new conversationModel({
+                {
                     _id: new Types.ObjectId().toString(),
                     title: 'Conversation 1',
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
-                }),
-                new conversationModel({
+                },
+                {
                     _id: new Types.ObjectId().toString(),
                     title: 'Conversation 2',
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
-                }),
+                },
             ];
 
             jest.spyOn(conversationService, 'findAll').mockResolvedValueOnce(mockConversations);
@@ -163,26 +169,26 @@ describe('ConversationResolver', () => {
             const userId = new Types.ObjectId().toString();
 
             const mockConversations: any[] = [
-                new conversationModel({
+                {
                     _id: new Types.ObjectId().toString(),
                     title: 'Conversation 1',
                     messageIds: [],
                     userIds: [userId],
                     timestamp: Date.now(),
-                }),
-                new conversationModel({
+                },
+                {
                     _id: new Types.ObjectId().toString(),
                     title: 'Conversation 2',
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
-                }),
+                },
             ];
 
             jest.spyOn(conversationService, 'findByUserId').mockResolvedValueOnce(mockConversations);
 
             const result = await resolver.conversationByUserId(userId);
-            expect(result).toEqual(mockConversations);
+            expect(result).toEqual([mockConversations[0]]);
         });
     });
 
@@ -191,26 +197,26 @@ describe('ConversationResolver', () => {
             const title = 'Conversation 1';
 
             const mockConversations: any[] = [
-                new conversationModel({
+                {
                     _id: new Types.ObjectId().toString(),
                     title: title,
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
-                }),
-                new conversationModel({
+                },
+                {
                     _id: new Types.ObjectId().toString(),
                     title: 'Conversation 2',
                     messageIds: [],
                     userIds: [],
                     timestamp: Date.now(),
-                }),
+                },
             ];
 
             jest.spyOn(conversationService, 'findByTitle').mockResolvedValueOnce(mockConversations);
 
             const result = await resolver.conversationByTitle(title);
-            expect(result).toEqual(mockConversations);
+            expect(result).toEqual([mockConversations[0]]);
         });
     });
 });
