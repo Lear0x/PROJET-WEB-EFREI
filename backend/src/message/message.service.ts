@@ -4,29 +4,35 @@ import { Model } from 'mongoose';
 import { Message as GraphQLMessage, Message } from './message.model';
 import { Message as MongooseMessage, MessageSchema } from './message.schema';
 import { MessageInput } from './message.dto';
-import { toGraphQLMessage } from '../common/utils'; // Assurez-vous d'importer la fonction de transformation correctement
+import { toGraphQLMessage } from '../common/utils';
+import { BullMQService } from '../bullmq/bullmq.service';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectModel('Message') private readonly messageModel: Model<MongooseMessage>,
+    private readonly bullMQService: BullMQService,
   ) {}
 
-  async create(data: MessageInput): Promise<Message | null> {
-    console.log('création message');
+  async sendMessage(data: MessageInput): Promise<Message | null> {
     try {
+      console.log('[message.service] - sendMessage() - Start')
       const newMessage = new this.messageModel(data);
-      await newMessage.save();
-      console.log("avant map mesg", newMessage);
-      console.log("apres map mesg", toGraphQLMessage(newMessage));
-
-      return toGraphQLMessage(newMessage);
-    }
-    catch(e) {
-      console.error(e)
+      const savedMessage = await newMessage.save();
+      const graphQLMessage = toGraphQLMessage(savedMessage);
+      await this.bullMQService.addMessageJob(graphQLMessage);
+      console.log('[message.service] - sendMessage() - End')
+      return graphQLMessage;
+    } catch (e) {
+      console.error(e);
       return null;
     }
-    
+  }
+
+  async handleMessageJob(message: GraphQLMessage) {
+    // Ajouter la logique de traitement du message ici
+    console.log('Handling message:', message);
+    // Exemple: envoyer le message via une API externe, une notification, etc.
   }
 
   async findAll(): Promise<GraphQLMessage[]> {

@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { toGraphQLConversation } from '../common/utils'; import { Schema, Document } from 'mongoose';
 
 export const ConversationSchema = new Schema({
   title: { type: String, required: true },

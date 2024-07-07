@@ -18,7 +18,7 @@ export class User {
     @Field(type => Int)
     timeStamp: number;
 
-    @Field(type =>  [Conversation], { nullable: true })
-    conversations?: Conversation[] | null;
+    @Field(type => [ID])
+    conversationsIds?: Conversation[] | null;
 
 }

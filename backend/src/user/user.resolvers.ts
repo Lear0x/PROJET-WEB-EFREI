@@ -22,26 +22,31 @@ export class UserResolver {
         return user;
     }
 
-    @Query(() => [User], { name: 'users' })
-    async getUsers(): Promise<User[] | null> {
+	@Query(() => [User], { name: 'users' })
+	async getUsers(): Promise<User[]> {
 		try {
 			return this.userService.findAll();
 		} catch (e) {	
 			console.error();
 			throw new Error(e);
 		}
-    }
+	}
 
     @Mutation(() => Boolean)
-    async createUser(@Args('data') data: UserInput): Promise<boolean> {
+    async createUser(@Args('data') data: UserInput): Promise<boolean | undefined> {
 		try {
 			const resultEmail = await this.userService.findOneByEmail(data.email);
 			const resultUsername = await this.userService.findOneByUsername(data.username);
+			if(!data.email){
+				throw new BadRequestException('Missing input fields')
+			}
 
 			if(!resultEmail && !resultUsername){
-				return await this.userService.create(data);
-			} else {
-				throw new Error('User already exists');
+				if(!await this.userService.checkExists(data.email)){
+					return await this.userService.create(data);
+				} else {
+					throw new Error('User already exists');
+				}
 			}
 		} catch (e) {
 			console.error();

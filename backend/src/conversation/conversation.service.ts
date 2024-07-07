@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Conversation, Conversation as GraphQLConversation } from './conversation.model';
 import { Conversation as MongooseConversation } from './conversation.schema';
 import { ConversationInput } from './conversation.dto';
-import { toGraphQLConversation } from '../common/utils'; // Assurez-vous d'importer la fonction de transformation correctement
+import { toGraphQLConversation } from '../common/utils'; 
 import { BlobOptions } from "buffer";
 
 @Injectable()
@@ -13,16 +13,14 @@ export class ConversationService {
 		@InjectModel('Conversation') private readonly conversationModel: Model<MongooseConversation>,
 	) { }
 
-	async create(conversationInput: ConversationInput): Promise<boolean> {
+	async create(data: ConversationInput): Promise<Conversation | null> {
 		try {
-			console.log('conversationInput => \n', JSON.stringify(conversationInput))
-			const newConversation = new this.conversationModel(conversationInput);
-			console.log('newConversation => \n', JSON.stringify(newConversation))
-			await newConversation.save();
-			return true;
+			const newConv = new this.conversationModel(data);
+			await newConv.save();
+			return toGraphQLConversation(newConv);
 		} catch (e) {
 			console.error(e)
-			return false;
+			return null;
 		}
 
 	}
@@ -60,7 +58,7 @@ export class ConversationService {
 		return toGraphQLConversation(newConversation);
 	}
 
-	async updateMessageId(convId: string, msgId: string): Promise<GraphQLConversation | null> {
+	async addMsgIdToConv(convId: string, msgId: string): Promise<GraphQLConversation | null> {
 		try {
 			console.log('convId =>', convId)
 			const conv = await this.conversationModel.findOne({ _id: convId }).exec();

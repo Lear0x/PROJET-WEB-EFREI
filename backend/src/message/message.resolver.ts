@@ -19,13 +19,13 @@ export class MessageResolver {
 
     
     @Mutation(() => Boolean)
-    async createMessage(@Args('data') data: MessageInput): Promise<boolean> {
+    async sendMessage(@Args('data') data: MessageInput): Promise<boolean> {
         const conv = await this.conversationService.findOneById(data.conversationId);
         if(conv && await this.userService.findOneById(data.from)) {
-            const messageCreated = await this.messageService.create(data);
+            const messageCreated = await this.messageService.sendMessage(data);
             if(messageCreated) {
                 try {
-                    await this.conversationService.updateMessageId(conv.id, messageCreated.id);
+                    await this.conversationService.addMsgIdToConv(conv.id, messageCreated.id);
                     return true;
                 }
                 catch(e) {
