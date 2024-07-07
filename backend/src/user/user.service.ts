@@ -1,17 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User as GraphQLUser, User  } from './user.model';
-import { User as MongooseUser } from "./user.schema";
+import { User } from "./user.schema";
 import { UserInput } from './user.dto';
-import { toGraphQLUser } from '../common/utils';
-
 
 
 
 @Injectable()
 export class UserService {
-	constructor(@InjectModel('User') private readonly userModel: Model<MongooseUser>) { }
+	constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
 
 	async findOneById(id: string): Promise<User | null | undefined> {
 		return await this.userModel.findById(id).exec();

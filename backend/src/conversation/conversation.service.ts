@@ -25,18 +25,14 @@ export class ConversationService {
 
 	}
 
-	async findAll(): Promise<GraphQLConversation[]> {
+	async findAll(): Promise<Conversation[]> {
 		const conversations = await this.conversationModel.find().exec();
 		return conversations.map(toGraphQLConversation);
 	}
 
 
-	async findOneById(id: string): Promise<GraphQLConversation> {
-		const conversation = await this.conversationModel.findById(id).exec();
-		if (!conversation) {
-			throw new NotFoundException(`Conversation with ID ${id} not found`);
-		}
-		return toGraphQLConversation(conversation);
+	async findOneById(id: string): Promise<Conversation | null | undefined> {
+		return await this.conversationModel.findById(id).exec();
 	}
 
 	async remove(id: string): Promise<boolean> {
@@ -45,8 +41,8 @@ export class ConversationService {
 	}
 
 
-	async findByUserId(userId: string): Promise<GraphQLConversation[]> {
-		const conversations = await this.conversationModel.find({ users: userId }).exec();
+	async findByUserId(userId: string): Promise<Conversation[]> {
+		const conversations = await this.conversationModel.find({ userIds: userId }).exec();
 		return conversations.map(toGraphQLConversation);
 	}
 
@@ -67,7 +63,7 @@ export class ConversationService {
 			console.log('convId =>', convId)
 			const conv = await this.conversationModel.findOne({ _id: convId }).exec();
 			if (conv) {
-				conv.messagesIds.push(msgId);
+				conv.messageIds.push(msgId);
 				console.log('modifiedConv => ', JSON.stringify(conv));
 				conv.save();
 				return toGraphQLConversation(conv);
@@ -82,8 +78,8 @@ export class ConversationService {
 	}
 
 
-	async findByTitle(title: string): Promise<GraphQLConversation[]> {
-		const conversations = await this.conversationModel.find({ title }).exec();
+	async findByTitle(title: string): Promise<Conversation[]> {
+		const conversations = await this.conversationModel.find({ title: title }).exec();
 		return conversations.map(toGraphQLConversation);
 	}
 

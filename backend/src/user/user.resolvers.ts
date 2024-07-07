@@ -22,27 +22,31 @@ export class UserResolver {
         return user;
     }
 
-    @Query(() => [User], { name: 'users' })
-    async getUsers(): Promise<User[] | null> {
+	@Query(() => [User], { name: 'users' })
+	async getUsers(): Promise<User[]> {
 		try {
 			return this.userService.findAll();
 		} catch (e) {	
 			console.error();
 			throw new Error(e);
 		}
-    }
+	}
 
     @Mutation(() => Boolean)
-    async createUser(@Args('data') data: UserInput): Promise<boolean> {
+    async createUser(@Args('data') data: UserInput): Promise<boolean | undefined> {
 		try {
+			const resultEmail = await this.userService.findOneByEmail(data.email);
+			const resultUsername = await this.userService.findOneByUsername(data.username);
 			if(!data.email){
 				throw new BadRequestException('Missing input fields')
 			}
 
-			if(!await this.userService.checkExists(data.email)){
-				return await this.userService.create(data);
-			} else {
-				throw new Error('User already exists');
+			if(!resultEmail && !resultUsername){
+				if(!await this.userService.checkExists(data.email)){
+					return await this.userService.create(data);
+				} else {
+					throw new Error('User already exists');
+				}
 			}
 		} catch (e) {
 			console.error();
@@ -59,13 +63,13 @@ export class UserResolver {
 
 		try {
 			if (!this.userService.findOneById(id)) {
-				throw new NotFoundException(id);
+				throw new NotFoundException;
 			}
 			const bool = await this.userService.remove(id);
 			return bool ? true : false;
 		} catch (e) {
-			console.error();
-			throw new Error(e);
+			console.error(e);
+			throw new NotFoundException;
 		}
 	}
 

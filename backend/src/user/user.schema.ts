@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-
+import { Conversation } from 'src/conversation/conversation.model';
 
 export const UserSchema = new Schema({
   username: String,
@@ -24,5 +24,5 @@ export interface User extends Document {
   email: string;
   password: string;
   timeStamp: number;
-  conversationsIds?: string[];
+  conversationsIds?: Conversation[] | null;
 }

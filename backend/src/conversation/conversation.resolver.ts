@@ -2,7 +2,8 @@ import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Conversation } from "./conversation.model";
 import { ConversationService } from "./conversation.service";
 import { ConversationInput } from "./conversation.dto";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { Types } from "mongoose";
 import { UserService } from "../user/user.service";
 import { error } from "console";
 
@@ -42,36 +43,37 @@ export class ConversationResolver {
 
 	@Query(returns => Conversation)
     async conversation(@Args('id') id: string): Promise<Conversation> {
-        const conversation = await this.conversationService.findOneById(id);
-        if (!conversation) {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException(`Invalid ID format: ${id}`);
+        }
+
+        const conv = await this.conversationService.findOneById(id);
+        if (!conv) {
             throw new NotFoundException(id);
         }
-        return conversation;
+        return conv;
     }
 
 	@Query(returns => Boolean)
     async removeConversation(id: string): Promise<boolean> {
-        return this.conversationService.remove(id);
+        const conv = await this.conversationService.findOneById(id);
+        if (!conv || undefined) {
+            throw new NotFoundException(id);
+        }
+        else {
+            return await this.conversationService.remove(id);
+        }
+        
     }
 
 	@Query(returns => [Conversation])
-    async conversationByUserId(userId: string): Promise<Conversation[]> {
+    async conversationByUserId(@Args('userId') userId: string): Promise<Conversation[]> {
         return this.conversationService.findByUserId(userId);
     }  
 
 	@Query(returns=> [Conversation])
-    async conversationByTitle(title: string): Promise<Conversation[]> {
+    async conversationByTitle(@Args('title') title: string): Promise<Conversation[]> {
         return this.conversationService.findByTitle(title);
-    }
-
-	@Query(returns => Conversation)
-    async addMessageToConversation(id: string, messageId: string): Promise<Conversation | null> {
-        return this.conversationService.addMessage(id, messageId);
-    }
-
-	@Query(returns => Conversation)
-    async removeMessageFromConversation(id: string, messageId: string): Promise<Conversation | null> {
-        return this.conversationService.removeMessage(id, messageId);
     }
 
 	// @Query(returns => Boolean)
@@ -79,25 +81,25 @@ export class ConversationResolver {
     //     return this.conversationService.update(conversation);
     // }
     
-	@Query(returns => Boolean)
-    async addUserToConversation(id: string, userId: string): Promise<Conversation | null> {
-        return this.conversationService.addUser(id, userId);
-    }
+	// @Query(returns => Boolean)
+    // async addUserToConversation(id: string, userId: string): Promise<Conversation | null> {
+    //     return this.conversationService.addUser(id, userId);
+    // }
 
-	@Query(returns => Boolean)
-    async removeUserFromConversation(id: string, userId: string): Promise<Conversation | null> {
-        return this.conversationService.removeUser(id, userId);
-    }
+	// @Query(returns => Boolean)
+    // async removeUserFromConversation(id: string, userId: string): Promise<Conversation | null> {
+    //     return this.conversationService.removeUser(id, userId);
+    // }
 
-	@Query(returns => Boolean)
-    async addUsersToConversation(id: string, userIds: string[]): Promise<Conversation | null> {
-        return this.conversationService.addUsers(id, userIds);
-    }
+	// @Query(returns => Boolean)
+    // async addUsersToConversation(id: string, userIds: string[]): Promise<Conversation | null> {
+    //     return this.conversationService.addUsers(id, userIds);
+    // }
 
-	@Query(returns => Boolean)
-    async removeUsersFromConversation(id: string, userIds: string[]): Promise<Conversation | null> {
-        return this.conversationService.removeUsers(id, userIds);
-    }
+	// @Query(returns => Boolean)
+    // async removeUsersFromConversation(id: string, userIds: string[]): Promise<Conversation | null> {
+    //     return this.conversationService.removeUsers(id, userIds);
+    // }
 
     
 }
