@@ -6,23 +6,41 @@ import { Conversation as MongooseConversation } from './conversation.schema';
 import { ConversationInput } from './conversation.dto';
 import { toGraphQLConversation } from '../common/utils'; 
 import { BlobOptions } from "buffer";
+import { UserService } from "src/user/user.service";
 
 @Injectable()
 export class ConversationService {
 	constructor(
 		@InjectModel('Conversation') private readonly conversationModel: Model<MongooseConversation>,
+		private readonly userService: UserService,
 	) { }
 
 	async create(data: ConversationInput): Promise<Conversation | null> {
 		try {
 			const newConv = new this.conversationModel(data);
+
+			console.log(data);
+			for (var usr of data.userIds) {
+				console.log(usr);
+				const user = await this.userService.findOneById(usr);
+				console.log("user", user);
+				if(user) {
+					console.log('try to update');
+					user?.conversationsIds?.push(newConv.id);
+					const result = this.userService.update(user);
+					console.log('update finish');
+
+				} else {
+					throw new Error('création de la conversation impossible')
+				}
+			}
 			await newConv.save();
+
 			return toGraphQLConversation(newConv);
 		} catch (e) {
 			console.error(e)
 			return null;
 		}
-
 	}
 
 	async findAll(): Promise<Conversation[]> {

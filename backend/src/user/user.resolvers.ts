@@ -4,6 +4,7 @@ import { UserService } from './user.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { UserInput } from './user.dto';
 import { Types } from 'mongoose';
+import { toGraphQLUser } from 'src/common/utils';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -25,7 +26,12 @@ export class UserResolver {
 	@Query(() => [User], { name: 'users' })
 	async getUsers(): Promise<User[]> {
 		try {
-			return this.userService.findAll();
+			const users = await this.userService.findAll();
+			console.log('user from resolvers', JSON.stringify(users) );
+			console.log('\n ');
+
+			console.log('---------------------');
+			return await this.userService.findAll();
 		} catch (e) {	
 			console.error();
 			throw new Error(e);

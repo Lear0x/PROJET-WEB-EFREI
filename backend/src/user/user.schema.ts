@@ -24,5 +24,6 @@ export interface User extends Document {
   email: string;
   password: string;
   timeStamp: number;
-  Conversations?: Conversation[] | null;
+  conversations?: Conversation[] | null;
+  conversationsIds? : string[] | null;
 }

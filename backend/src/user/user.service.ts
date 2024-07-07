@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from "./user.schema";
 import { UserInput } from './user.dto';
+import { toGraphQLUser } from 'src/common/utils';
 
 
 
@@ -34,6 +35,12 @@ export class UserService {
 	
 
 	async findAll(): Promise<User[]> {
+		const user = await this.userModel.find().exec();
+		console.log('user from service', JSON.stringify(user));
+		console.log('\n ');
+
+		console.log('---------------------');
+
 		return await this.userModel.find().exec();
 	}
 
@@ -62,5 +69,17 @@ export class UserService {
 			throw Error(e);
 		}
 
+	}
+
+
+	async update(user: User): Promise<User | null> {
+		const newUser = new this.userModel(user);
+		
+		user.updateOne();
+		user.save();
+		if (!user) {
+			return null;
+		}
+		return newUser;
 	}
 }

@@ -21,4 +21,8 @@ export class User {
     @Field(type => [Conversation], { nullable: true })
     conversations?: Conversation[] | null;
 
+    @Field(type => [ID], {nullable: true})
+    conversationsIds?: string[] | null;
+
+
 }
