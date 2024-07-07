@@ -12,7 +12,7 @@ export function toGraphQLUser(user: MongooseUser): GraphQLUser {
     username: user.username,
     password: user.password,
     timeStamp: user.timeStamp,
-    conversationsIds: user.conversationsIds as any,
+    conversations: user.Conversations as any,
   };
 }
 
