@@ -56,14 +56,22 @@ export class ConversationResolver {
         return conv;
     }
 
-	@Query(returns => Boolean)
-    async removeConversation(id: string): Promise<boolean> {
-        const conv = await this.conversationService.findOneById(id);
-        if (!conv || undefined) {
-            throw new NotFoundException(id);
+	@Mutation(() => Boolean)
+    async removeConversation(@Args('id') id: string): Promise<boolean> {
+        
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException(`Invalid ID format: ${id}`);
         }
-        else {
-            return await this.conversationService.remove(id);
+
+        try {
+            const conv = await this.conversationService.findOneById(id);
+            if (!conv) {
+                throw new NotFoundException(id);
+            }
+            const bool = await this.conversationService.remove(id);
+            return bool ? true : false;
+        } catch(e) {
+            throw new NotFoundException;
         }
         
     }

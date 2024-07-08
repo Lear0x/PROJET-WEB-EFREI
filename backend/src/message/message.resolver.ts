@@ -51,7 +51,21 @@ export class MessageResolver {
 
     @Mutation(returns => Boolean)
     async removeMessage(@Args('id') id: string): Promise<boolean> {
-        return this.messageService.remove(id);
+
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException(`Invalid ID format: ${id}`);
+        }
+        
+        try {
+            const conv = await this.messageService.findOneById(id);
+            if (!conv) {
+                throw new NotFoundException(id);
+            }
+            const bool = await this.messageService.remove(id);
+            return bool ? true : false;
+        } catch(e) {
+            throw new NotFoundException;
+        }
     }
 
     @Query(() => [Message], { name: 'messages' })

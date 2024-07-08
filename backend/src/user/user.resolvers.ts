@@ -70,7 +70,8 @@ export class UserResolver {
         }
 
 		try {
-			if (!this.userService.findOneById(id)) {
+            const user = await this.userService.findOneById(id);
+			if (!user) {
 				throw new NotFoundException;
 			}
 			const bool = await this.userService.remove(id);

@@ -39,8 +39,9 @@ export class UserService {
 		return true;
 	}
 
-	async remove(id: string): Promise<User | null | undefined> {
-		return await this.userModel.findByIdAndDelete(id).exec();
+	async remove(id: string): Promise<Boolean> {
+		const result = await this.userModel.findByIdAndDelete(id).exec();
+		return result !== null;
 	}
 
 	async signIn(username: string, password: string): Promise<Boolean | User> {
