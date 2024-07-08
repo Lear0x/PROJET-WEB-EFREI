@@ -40,10 +40,10 @@ export class MessageService {
     return messages.map(toGraphQLMessage);
   }
 
-  async findOneById(id: string): Promise<GraphQLMessage> {
+  async findOneById(id: string): Promise<Message | null | undefined> {
     const message = await this.messageModel.findById(id).exec();
     if (!message) {
-      throw new NotFoundException(`Message with ID ${id} not found`);
+      return null;
     }
     return toGraphQLMessage(message);
   }

@@ -11,7 +11,8 @@ export class UserService {
 	constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
 
 	async findOneById(id: string): Promise<User | null | undefined> {
-		return await this.userModel.findById(id).exec();
+		const user = await this.userModel.findById(id).exec();
+		return user;
 	}
 
 	async findOneByUsername(username: string): Promise<User | null | undefined> {
