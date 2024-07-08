@@ -2,10 +2,11 @@ import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { Message } from './message.model';
 import { MessageInput } from './message.dto';
 import { MessageService } from './message.service';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ConversationService } from '../conversation/conversation.service';
 import { error } from 'console';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
+import { Types } from 'mongoose';
 
 
 @Resolver(() => Message)
@@ -21,8 +22,10 @@ export class MessageResolver {
     @Mutation(() => Boolean)
     async sendMessage(@Args('data') data: MessageInput): Promise<boolean> {
         const conv = await this.conversationService.findOneById(data.conversationId);
+        console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", this.userService.findOneById(data.from));
         if(conv && await this.userService.findOneById(data.from)) {
             const messageCreated = await this.messageService.sendMessage(data);
+            console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", messageCreated);
             if(messageCreated) {
                 try {
                     await this.conversationService.addMsgIdToConv(conv.id, messageCreated.id);
@@ -58,6 +61,11 @@ export class MessageResolver {
 
     @Query(() => Message)
     async message(@Args('id') id: string): Promise<Message> {
+
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException(`Invalid ID format: ${id}`);
+        }
+        
         const message = await this.messageService.findOneById(id);
         if (!message) {
             throw new NotFoundException(id);
