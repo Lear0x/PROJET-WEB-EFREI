@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MessageResolver } from '../src/message/message.resolver';
 import { MessageService } from '../src/message/message.service';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { MessageInput } from '../src/message/message.dto';
 import { getModelToken } from '@nestjs/mongoose';
@@ -126,9 +126,23 @@ describe('MessageResolver', () => {
     // });
 
     describe('removeMessage', () => {
+        it('should throw BadRequestException for an invalid ID', async () => {
+			const invalidId = '123';
+
+			await expect(resolver.removeMessage(invalidId)).rejects.toThrow(BadRequestException);
+			await expect(resolver.removeMessage(invalidId)).rejects.toThrow(`Invalid ID format: ${invalidId}`);
+		});
         it('should remove a message if found', async () => {
             const validId = new Types.ObjectId().toString();
 
+            const mockMessage = {
+				id: validId,
+                conversationId: new Types.ObjectId().toString(),
+                from: new Types.ObjectId().toString(),
+                content: 'Test message',
+                timeStamp: Date.now(),
+			};
+            jest.spyOn(messageService, 'findOneById').mockResolvedValueOnce(Promise.resolve(mockMessage));
             jest.spyOn(messageService, 'remove').mockResolvedValueOnce(true);
 
             const result = await resolver.removeMessage(validId);
@@ -140,8 +154,9 @@ describe('MessageResolver', () => {
 
             jest.spyOn(messageService, 'remove').mockResolvedValueOnce(false);
 
-            const result = await resolver.removeMessage(validId);
-            expect(result).toEqual(false);
+            
+            await expect(resolver.removeMessage(validId)).rejects.toThrow(NotFoundException);
+			await expect(resolver.removeMessage(validId)).rejects.toThrow("Not Found");
         });
     });
 

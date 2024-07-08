@@ -142,10 +142,11 @@ describe('UserResolver', () => {
 
 			//expect(userService.remove).toHaveBeenCalledWith(validId);
 
-      jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(Promise.resolve(mockUser as SchemaUser | null | undefined));
-      jest.spyOn(userService, 'remove').mockResolvedValueOnce(Promise.resolve(mockUser as SchemaUser | null | undefined));
+      		jest.spyOn(userService, 'findOneById').mockResolvedValueOnce(Promise.resolve(mockUser as SchemaUser | null | undefined));
+      		jest.spyOn(userService, 'remove').mockResolvedValueOnce(true);
 
-      const result = await resolver.removeUser(validId);
+     		 
+	  		const result = await resolver.removeUser(validId);
 			expect(result).toEqual(true);
 		});
 	});
