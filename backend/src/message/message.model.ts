@@ -9,8 +9,8 @@ export class Message {
     @Field(type => String)
     content: string;
 
-    @Field(type => User)
-    from: User;
+    @Field(type => String)
+    from: string;
 
     @Field(type => ID)
     conversationId: string; // Référence à la conversation
