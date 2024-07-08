@@ -1,24 +1,23 @@
-// router/index.ts
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import Home from '@/views/home/Home.vue'; // Importez votre composant Home
-import About from '@/views/about/About.vue'; // Importez votre composant About
+import { createRouter, createWebHistory } from 'vue-router';
+import HomePage from '@/views/HomePage.vue';
+import ConversationPage from '@/views/ConversationPage.vue';
 
-const routes: Array<RouteRecordRaw> = [
+const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home // Associez la route '/' avec le composant Home
+    component: HomePage,
   },
   {
-    path: '/about',
-    name: 'About',
-    component: About // Associez la route '/about' avec le composant About
-  }
+    path: '/conversation/:id',
+    name: 'Conversation',
+    component: ConversationPage,
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 });
 
 export default router;

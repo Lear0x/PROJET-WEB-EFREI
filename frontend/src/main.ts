@@ -1,8 +1,11 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 import router from './router';
-import store from './store';
+import store from './store'; // Assuming you have a Vuex store configured
 
-import './assets/styles/style.global.css';
+console.log('FRONTEND - main - Starting');
 
-createApp(App).use(router).use(store).mount('#app');
+createApp(App)
+  .use(router)
+  .use(store)
+  .mount('#app');
