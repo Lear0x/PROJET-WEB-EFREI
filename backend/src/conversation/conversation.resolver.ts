@@ -16,25 +16,27 @@ export class ConversationResolver {
     ) 
     {}
     
-	@Mutation(() => Boolean)
+    @Mutation(() => Boolean)
     async createConversation(@Args('data') data: ConversationInput): Promise<Boolean> {
-        
-        data.userIds.forEach(userId => {
-            if (!this.userService.findOneById(userId)) {
-                throw error ("One user in the Users selected doesnt exist")
+        try { 
+          
+            const usersExist = await Promise.all(data.userIds.map(userId => this.userService.findOneById(userId)));
+            if (usersExist.some(user => !user)) {
+                throw new Error("One user in the Users selected doesn't exist");
             }
-        });
-        
-        const convCreated = await this.conversationService.create(data);
-        if(convCreated) {
-            return await this.userService.addConvToUsers(data.userIds, convCreated.id);
+            
+            const convCreated = await this.conversationService.create(data);
+            if (convCreated) {
+                return await this.userService.addConvToUsers(data.userIds, convCreated.id);
+            } else {
+                throw new Error("Conversation not created");
+            }
+        } catch (e) {
+            console.error(e);
+            throw new BadRequestException(e.message);
         }
-        else {
-            throw error("Conversation not created");
-        }
-
-         
     }
+    
 
 	@Query(returns => [Conversation])
     async conversations(): Promise<Conversation[]> {
