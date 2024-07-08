@@ -4,7 +4,6 @@ import { UserService } from './user.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { UserInput } from './user.dto';
 import { Types } from 'mongoose';
-import { toGraphQLUser } from 'src/common/utils';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -27,38 +26,41 @@ export class UserResolver {
 	async getUsers(): Promise<User[]> {
 		try {
 			const users = await this.userService.findAll();
-			console.log('user from resolvers', JSON.stringify(users) );
-			console.log('\n ');
-
-			console.log('---------------------');
-			return await this.userService.findAll();
+			return users;
 		} catch (e) {	
 			console.error();
 			throw new Error(e);
 		}
 	}
 
-    @Mutation(() => Boolean)
+	@Mutation(() => Boolean)
     async createUser(@Args('data') data: UserInput): Promise<boolean | undefined> {
-		try {
-			const resultEmail = await this.userService.findOneByEmail(data.email);
-			const resultUsername = await this.userService.findOneByUsername(data.username);
-			if(!data.email){
-				throw new BadRequestException('Missing input fields')
-			}
+        try {
+            const resultEmail = await this.userService.findOneByEmail(data.email);
+            const resultUsername = await this.userService.findOneByUsername(data.username);
 
-			if(!resultEmail && !resultUsername){
-				if(!await this.userService.checkExists(data.email)){
-					return await this.userService.create(data);
-				} else {
-					throw new Error('User already exists');
-				}
-			}
-		} catch (e) {
-			console.error();
-			throw new Error(e);
-		}
+            if (!data.email) {
+                throw new BadRequestException('Missing input fields');
+            }
+
+            if (!resultEmail && !resultUsername) {
+                console.log('dataemail', data.email);
+                const resultDataMail = await this.userService.checkExists(data.email);
+                console.log('resultdatamail', resultDataMail);
+                if (!resultDataMail) {
+					const userCreated = await this.userService.create(data);
+                    return userCreated;
+                } else {
+                    throw new Error('User already exists');
+                }
+            } else {
+                throw new Error('User already exists');
+            }
+        } catch (e) {
+            throw new Error(e);
+        }
     }
+
 
     @Mutation(() => Boolean)
     async removeUser(@Args('id')id : string) : Promise<Boolean>{
@@ -74,7 +76,6 @@ export class UserResolver {
 			const bool = await this.userService.remove(id);
 			return bool ? true : false;
 		} catch (e) {
-			console.error(e);
 			throw new NotFoundException;
 		}
 	}

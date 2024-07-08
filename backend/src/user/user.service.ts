@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from "./user.schema";
 import { UserInput } from './user.dto';
-import { toGraphQLUser } from 'src/common/utils';
 
 
 
@@ -24,23 +23,12 @@ export class UserService {
 	}
 
 	async checkExists(checkEmail: string): Promise<Boolean> {
-		const user = await this.userModel.findOne({email: checkEmail}).exec()
-
-		if(user){
-			return true
-		} else {
-			return false
-		}
-	}
+        const user = await this.userModel.findOne({ email: checkEmail }).exec();
+        return !!user;
+    }
 	
 
 	async findAll(): Promise<User[]> {
-		const user = await this.userModel.find().exec();
-		console.log('user from service', JSON.stringify(user));
-		console.log('\n ');
-
-		console.log('---------------------');
-
 		return await this.userModel.find().exec();
 	}
 

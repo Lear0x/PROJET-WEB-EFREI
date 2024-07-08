@@ -7,8 +7,7 @@ import { Types } from 'mongoose';
 import { ConversationInput } from '../src/conversation/conversation.dto';
 import { Conversation as SchemaConversation } from '../src/conversation/conversation.schema';
 import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { json } from 'stream/consumers';
+import { UserService } from '../src/user/user.service';
 
 describe('ConversationResolver', () => {
     let resolver: ConversationResolver;
@@ -41,6 +40,15 @@ describe('ConversationResolver', () => {
                 },
                 {
                     provide: MessageService,
+                    useValue: {
+                        findAll: jest.fn(),
+                        findOneById: jest.fn(),
+                        create: jest.fn(),
+                        remove: jest.fn(),
+                    },
+                },
+                {
+                    provide: UserService,
                     useValue: {
                         findAll: jest.fn(),
                         findOneById: jest.fn(),
@@ -100,10 +108,8 @@ describe('ConversationResolver', () => {
         it('should create a conversation', async () => {
             const mockConversationData: ConversationInput = {
                 title: 'New Conversation',
-                userIds: ['user1', 'user2'],
+                userIds: [new Types.ObjectId().toString(), new Types.ObjectId().toString()],
             };
-
-            jest.spyOn(conversationService, 'create').mockResolvedValueOnce(true);
 
             const result = await resolver.createConversation(mockConversationData);
             expect(result).toEqual(true);
