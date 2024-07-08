@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Conversation } from 'src/conversation/conversation.model';
+import { Conversation } from '../conversation/conversation.model';
 
 export const UserSchema = new Schema({
   username: String,

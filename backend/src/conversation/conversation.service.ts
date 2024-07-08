@@ -6,7 +6,7 @@ import { Conversation as MongooseConversation } from './conversation.schema';
 import { ConversationInput } from './conversation.dto';
 import { toGraphQLConversation } from '../common/utils'; 
 import { BlobOptions } from "buffer";
-import { UserService } from "src/user/user.service";
+import { UserService } from "../user/user.service";
 
 @Injectable()
 export class ConversationService {

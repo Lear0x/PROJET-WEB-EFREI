@@ -5,7 +5,7 @@ import { MessageService } from './message.service';
 import { NotFoundException } from '@nestjs/common';
 import { ConversationService } from '../conversation/conversation.service';
 import { error } from 'console';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 
 
 @Resolver(() => Message)
