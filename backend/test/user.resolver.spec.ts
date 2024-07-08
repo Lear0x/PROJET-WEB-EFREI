@@ -5,7 +5,7 @@ import { User } from '../src/user/user.model';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { UserInput } from '../src/user/user.dto';
-import { User as SchemaUser } from 'src/user/user.schema'; 
+import { User as SchemaUser } from '../src/user/user.schema'; 
 
 describe('UserResolver', () => {
 	let resolver: UserResolver;
@@ -24,6 +24,7 @@ describe('UserResolver', () => {
 						findOneByUsername: jest.fn(),
 						create: jest.fn(),
 						remove: jest.fn(),
+						checkExists: jest.fn(),
 					},
 				},
 			],
@@ -94,14 +95,20 @@ describe('UserResolver', () => {
 
 		it('should create a user if user does not exist', async () => {
 			const mockUserData: UserInput = {
-				username: 'newuser',
-				email: 'newuser@example.com',
+				username: 'newuser11111',
+				email: 'newuser1111@example.com',
 				password: 'password',
 			};
 
-			await resolver.createUser(mockUserData);
+			jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(null);
+            jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(null);
+            jest.spyOn(userService, 'checkExists').mockResolvedValueOnce(false);
+            jest.spyOn(userService, 'create').mockResolvedValueOnce(true);
+
+			const result = await resolver.createUser(mockUserData);
 
 			expect(userService.create).toHaveBeenCalledWith(mockUserData);
+			expect(result).toBe(true);
 		});
 	});
 
@@ -147,19 +154,19 @@ describe('UserResolver', () => {
 		it('should return an array of users', async () => {
 			const mockUsers: any[] = [
 				{
-					id: '1',
+					id: new Types.ObjectId().toString(),
 					username: 'user1',
 					email: 'user1@example.com',
 					password: 'password',
 					timeStamp: Date.now(),
-				} as SchemaUser,
+				},
 				{
-					id: '2',
+					id: new Types.ObjectId().toString(),
 					username: 'user2',
 					email: 'user2@example.com',
 					password: 'password',
 					timeStamp: Date.now(),
-				} as SchemaUser,
+				}
 			];
 
 			jest.spyOn(userService, 'findAll').mockResolvedValueOnce(mockUsers);

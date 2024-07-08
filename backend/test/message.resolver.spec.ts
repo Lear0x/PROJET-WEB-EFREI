@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MessageResolver } from '../src/message/message.resolver';
 import { MessageService } from '../src/message/message.service';
-import { Message } from '../src/message/message.model';
 import { NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { MessageInput } from '../src/message/message.dto';
